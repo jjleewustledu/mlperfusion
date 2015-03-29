@@ -1,5 +1,5 @@
-classdef PerfusionIO < mlio.AbstractIO 
-	%% PERFUSIONIO is a concrete class for filesystem I/O of ASCII/Unicode text; 
+classdef PerfusionRecircIO < mlio.AbstractIO 
+	%% PerfusionRecircIO is a concrete class for filesystem I/O of ASCII/Unicode text; 
     %  it specifically parses log files from Josh Shimony's perfusion_4dfp package
     %
 	%  $Revision$ 
@@ -13,7 +13,7 @@ classdef PerfusionIO < mlio.AbstractIO
     properties (Constant)
         FILETYPE     =   'perfusion_4dfp log'
         FILETYPE_EXT =   '.log'
-        PARAM_NAMES  = { 'S0' 'CBF' 't0' 'alpha' 'beta' 'delta' 'gamma' 'eps' }
+        PARAM_NAMES  = { 'S0' 'CBF' 't0' 'alpha' 'beta' 'delta' 'gamma' 'eps' 't1' 'nu' }
     end
     
     properties (Dependent)
@@ -29,6 +29,8 @@ classdef PerfusionIO < mlio.AbstractIO
         delta
         gamma
         eps
+        t1
+        nu
     end
     
     methods %% SET/GET
@@ -107,11 +109,27 @@ classdef PerfusionIO < mlio.AbstractIO
             assert(~isempty(this.eps_));
             x = this.eps_;
         end
+        function this  = set.t1(this, x)
+            assert(isnumeric(x));
+            this.t1_ = x;
+        end
+        function x     = get.t1(this)
+            assert(~isempty(this.t1_));
+            x = this.t1_;
+        end
+        function this  = set.nu(this, x)
+            assert(isnumeric(x));
+            this.nu_ = x;
+        end
+        function x     = get.nu(this)
+            assert(~isempty(this.eps_));
+            x = this.nu_;
+        end
     end
     
 	methods (Static)
         function this = load(fn) 
-            this = mlperfusion.PerfusionIO(fn);
+            this = mlperfusion.PerfusionRecircIO(fn);
         end
         function ca  = textfileToCell(fqfn, eol)  %#ok<INUSD>
             if (~exist('eol','var'))
@@ -132,29 +150,30 @@ classdef PerfusionIO < mlio.AbstractIO
                 fclose(fid);
                 assert(~isempty(ca) && ~isempty(ca{1}))
             catch ME
-                fprintf('mlperfusion.PerfusionIO.textfileToCell:  exception thrown while reading \n\t%s\n\tME.identifier->%s', fqfn, ME.identifier);
+                fprintf('mlperfusion.PerfusionRecircIO.textfileToCell:  exception thrown while reading \n\t%s\n\tME.identifier->%s', fqfn, ME.identifier);
             end
         end
     end
     
     methods
-        function this = PerfusionIO(fn)
+        function this = PerfusionRecircIO(fn)
             import mlperfusion.*;
             assert(lexist(fn, 'file'));
             [pth, fp, fext] = fileparts(fn); 
-            if (strcmp(PerfusionIO.FILETYPE_EXT, fext) || ...
+            if (strcmp(PerfusionRecircIO.FILETYPE_EXT, fext) || ...
                 isempty(fext))
                 this = this.loadText(fn); 
                 this.fqfilename = fullfile(pth, [fp fext]);
                 this = this.lookForPars;
                 return 
             end
-            error('mlperfusion:unsupportedParam', 'PerfusionIO.load does not support file-extension .%s', fext);
+            error('mlperfusion:unsupportedParam', 'PerfusionRecircIO.load does not support file-extension .%s', fext);
         end
         function ch   = char(this)
             ch = strjoin(this.contents, '\n');
         end
         function        save(~)
+            error('mlperfusion:notImplemented', 'PerfusionRecircIO.save');
         end
     end
     
@@ -173,6 +192,8 @@ classdef PerfusionIO < mlio.AbstractIO
         delta_
         gamma_
         eps_
+        t1_
+        nu_
     end
     
     methods (Access = 'protected')
@@ -188,6 +209,8 @@ classdef PerfusionIO < mlio.AbstractIO
                 this = this.lookForPar(line, 'delta');
                 this = this.lookForPar(line, 'gamma');
                 this = this.lookForPar(line, 'eps');
+                this = this.lookForPar(line, 't1');
+                this = this.lookForPar(line, 'nu');
             end
         end
         function [first,last] = contentLinesWithPars(this)
