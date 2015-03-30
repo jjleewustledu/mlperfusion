@@ -28,7 +28,7 @@ classdef Test_WholeBrainDSC < matlab.unittest.TestCase
             this.assertEqual(this.testObj.scanDuration, 178.5);
         end
         function test_times(this)
-            this.assertEqual(this.testObj.times(4), 4.5);
+            this.assertEqual(this.testObj.times(4),     4.5);
             this.assertEqual(this.testObj.times(119), 177);
             this.assertEqual(this.testObj.times(120), 178.5);
         end
@@ -36,12 +36,12 @@ classdef Test_WholeBrainDSC < matlab.unittest.TestCase
             this.assertEqual(this.testObj.timeInterpolants(120), 119);
         end
         function test_conc(this)
-            this.assertEqual(this.testObj.conc(4), 0.003996235087416, 'RelTol', 1e-10);
-            this.assertEqual(this.testObj.conc(19), 0.464113571787175, 'RelTol', 1e-10);
-            this.assertEqual(this.testObj.conc(20), 0.315481932337763, 'RelTol', 1e-10);
+            this.assertEqual(double(this.testObj.conc(4)),  0.003996235087416, 'RelTol', 1e-5);
+            this.assertEqual(double(this.testObj.conc(19)), 0.464113571787175, 'RelTol', 1e-5);
+            this.assertEqual(double(this.testObj.conc(20)), 0.315481932337763, 'RelTol', 1e-5);
         end
         function test_concInterpolants(this)
-            this.assertEqual(this.testObj.concInterpolants(120), 0.069716504046929, 'RelTol', 1e-10);
+            this.assertEqual(double(this.testObj.concInterpolants(120)), 0.069716504046929, 'RelTol', 1e-5);
         end
         function test_header(this)
             this.assertEqual(this.testObj.header.descrip(1:end-21), ...
@@ -56,7 +56,7 @@ classdef Test_WholeBrainDSC < matlab.unittest.TestCase
         function test_magnetization(this)
             figure
             plot(this.testObj.times, this.testObj.magnetization);
-            title('\int dx^3 M(x,t_{native})');
+            title('\int_{V_{mask}} dx^3 mask(x) M(x,t_{native}) / V_{mask}');
         end
         function test_kConcentration(this)
             figure

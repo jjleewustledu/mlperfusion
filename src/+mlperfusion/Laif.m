@@ -28,37 +28,29 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
             m = S0 * exp(-F * Laif.kConcentration1(e, a, b, d, g, t, t0));
             m = abs(m);
         end 
-        function m    = magnetization2(S0, F, a, b, d, t, t0, t1, n)
+        function m    = magnetization2(S0, F, e, a, b, d, g, t, t0, t1, n)
             import mlperfusion.*;
-            m = S0 * exp(-F * Laif.kConcentration2(a, b, d, t, t0, t1, n));
-            m = abs(m);
-        end
-        function m    = magnetization3(S0, F, e, a, b, d, g, t, t0, t1, n, n2)
-            import mlperfusion.*;
-            m = S0 * exp(-F * Laif.kConcentration3(e, a, b, d, g, t, t0, t1, n, n2));
+            m = S0 * exp(-F * Laif.kConcentration2(e, a, b, d, g, t, t0, t1, n));
             m = abs(m);
         end
         
         function kC   = kConcentration0(a, b, d, t, t0)
             import mlperfusion.*;
             kC = Laif.flowTerm(a, b, d, t, t0);
+            kC = abs(kC);
         end  
         function kC   = kConcentration1(e, a, b, d, g, t, t0)
             import mlperfusion.*;
-            kC = e * Laif.flowTerm(a, b, d, t, t0) + ...
+            kC =      e  * Laif.flowTerm(a, b, d, t, t0) + ...
                  (1 - e) * Laif.steadyStateTerm(d, g, t, t0);
+            kC = abs(kC);
         end    
-        function kC   = kConcentration2(a, b, d, t, t0, t1, n)
+        function kC   = kConcentration2(e, a, b, d, g, t, t0, t1, n)
             import mlperfusion.*;
-            kC =     Laif.flowTerm(a, b, d, t, t0) + ...
-                 n * Laif.flowTerm(a, b, d, t, t1);
-        end
-        function kC   = kConcentration3(e, a, b, d, g, t, t0, t1, n, n2)
-            import mlperfusion.*;
-            kC = e  * Laif.flowTerm(a, b, d, t, t0) + ...
-                 n  * Laif.flowTerm(a, b, d, t, t1) + ...
-                 n2 * Laif.flowTerm(a, b, d, t, t2) + ...
-                 (1 - e) * Laif.steadyStateTerm(d, g, t, t2);
+            kC =      e  * Laif.flowTerm(a, b, d, t, t0) + ...
+                      n  * Laif.flowTerm(a, b, d, t, t1) + ...
+                 (1 - e) * Laif.steadyStateTerm(d, g, t, t0);
+            kC = abs(kC);
         end
         
         function conc = flowTerm(a, b, d, t, t0)
@@ -71,6 +63,7 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
             idx_t0 = floor(t0) + 1;
             conc   = zeros(1, length(t));
             conc(idx_t0:end) = conc0(1:end-idx_t0+1);
+            conc   = abs(conc);
         end
         function conc = steadyStateTerm(d, g, t, t0)
             if (g == d)
@@ -82,6 +75,7 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
             idx_t0 = floor(t0) + 1;
             conc   = zeros(1, length(t));
             conc(idx_t0:end) = conc0(1:end-idx_t0+1);
+            conc   = abs(conc);
         end
         
         function this = simulateMcmc0(S0, F, a, b, d, t, t0, dsc, map)
@@ -102,30 +96,30 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
         function this = simulateMcmc1(S0, F, e, a, b, d, g, t, t0, dsc, map)
             
             import mlperfusion.*;            
-            m0   = Laif.magnetization1(S0, F, e, a, b, d, g, t, t0);
+            m1   = Laif.magnetization1(S0, F, e, a, b, d, g, t, t0);
             this = Laif(t, dsc);
             this = this.estimateParameters(map) %#ok<NOPRT>
             
             figure;
-            plot(t, this.estimateData1, t, m0, 'o');
+            plot(t, this.estimateData1, t, m1, 'o');
             legend('Bayesian estimate', 'simulated data');
             title(sprintf('simulateMcmc expected:  S0 %g, F %g, eps %g, alpha %g, beta %g, delta %g, gamma %g, t0 %g', ...
                   S0, F, e, a, b, d, g, t0));
             xlabel('time/s');
             ylabel('magnetization/arbitrary');
         end        
-        function this = simulateMcmc2(S0, F, a, b, d, t, t0, t1, n, dsc, map)
+        function this = simulateMcmc2(S0, F, e, a, b, d, g, t, t0, t1, n, dsc, map)
             
             import mlperfusion.*;            
-            m2   = Laif.magnetization2(S0, F, a, b, d, t, t0, t1, n);
+            m2   = Laif.magnetization2(S0, F, e, a, b, d, g, t, t0, t1, n);
             this = Laif(t, dsc);
             this = this.estimateParameters(map) %#ok<NOPRT>
             
             figure;
             plot(t, this.estimateData2, t, m2, 'o');
             legend('Bayesian estimate', 'simulated data');
-            title(sprintf('simulateMcmc expected:  S0 %g, F %g, alpha %g, beta %g, delta %g, t0 %g, t1 %g, n %g', ...
-                  S0, F, a, b, d, t0, t1, n));
+            title(sprintf('simulateMcmc expected:  S0 %g, F %g, eps %g, alpha %g, beta %g, delta %g, gamma %g, t0 %g, t1 %g, n %g', ...
+                  S0, F, e, a, b, d, g, t0, t1, n));
             xlabel('time/s');
             ylabel('magnetization/arbitrary');
         end
@@ -151,13 +145,13 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
         end
         function this = estimateData(this)
-            this = this.estimateData1;
+            this = this.estimateData2;
         end
-        function this = estimateDataFast(this, S0, F, e, a, b, d, g, t0)
-            this = this.estimateDataFast1(S0, F, e, a, b, d, g, t0);
+        function ed = estimateDataFast(this, S0, F, e, a, b, d, g, t0, t1, n)
+            ed = this.estimateDataFast2(S0, F, e, a, b, d, g, t0, t1, n);
         end
         function ps   = adjustParams(this, ps)
-            ps = this.adjustParams0(ps);
+            ps = this.adjustParams2(ps);
         end
     end
     
@@ -185,7 +179,8 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
         function ed   = estimateData1(this)
             ed = this.estimateDataFast1( ...
                 this.finalParams('S0'), this.finalParams('F'), this.finalParams('e'), ...
-                this.finalParams('a'),  this.finalParams('b'), this.finalParams('d'), this.finalParams('g'), this.finalParams('t0'));
+                this.finalParams('a'),  this.finalParams('b'), this.finalParams('d'), this.finalParams('g'), ...
+                this.finalParams('t0'));
         end
         function ed   = estimateDataFast1(this, S0, F, e, a, b, d, g, t0)  
             ed = this.magnetization1(S0, F, e, a, b, d, g, this.independentData, t0);
@@ -197,16 +192,17 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
                 ps(manager.paramsIndices('b')) = ps(manager.paramsIndices('d'));
                 ps(manager.paramsIndices('d')) = tmp;
             end
+            ps(manager.paramsIndices('e')) = mod(ps(manager.paramsIndices('e')), 1);
         end
         
         function ed   = estimateData2(this)
             ed = this.estimateDataFast2( ...
-                this.finalParams('S0'), this.finalParams('F'), ...
-                this.finalParams('a'),  this.finalParams('b'), this.finalParams('d'), this.finalParams('t0'), ...
-                this.finalParams('t1'), this.finalParams('n'));
+                this.finalParams('S0'), this.finalParams('F'),  this.finalParams('e'), ...
+                this.finalParams('a'),  this.finalParams('b'),  this.finalParams('d'), this.finalParams('g'), ...
+                this.finalParams('t0'), this.finalParams('t1'), this.finalParams('n'));
         end
-        function ed   = estimateDataFast2(this, S0, F, a, b, d, t0, t1, n)  
-            ed = this.magnetization2(S0, F, a, b, d, this.independentData, t0, t1, n);
+        function ed   = estimateDataFast2(this, S0, F, e, a, b, d, g, t0, t1, n)  
+            ed = this.magnetization2(S0, F, e, a, b, d, g, this.independentData, t0, t1, n);
         end         
         function ps   = adjustParams2(this, ps)
             manager = this.paramsManager;
@@ -215,6 +211,7 @@ classdef Laif < mlbayesian.AbstractMcmcProblem
                 ps(manager.paramsIndices('b')) = ps(manager.paramsIndices('d'));
                 ps(manager.paramsIndices('d')) = tmp;
             end
+            ps(manager.paramsIndices('e')) = mod(ps(manager.paramsIndices('e')), 1);
             if (ps(manager.paramsIndices('t0')) > ps(manager.paramsIndices('t1')))                
                 tmp                             = ps(manager.paramsIndices('t0'));
                 ps(manager.paramsIndices('t1')) = ps(manager.paramsIndices('t0'));

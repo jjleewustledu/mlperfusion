@@ -62,13 +62,13 @@ classdef WholeBrainDSC < mlperfusion.AbstractMRCurve
             this.conc             = this.kConcentration;
         end
         function m    = magnetization(this)
-            %% MAGNETIZATION calculates de novo from dscNifti \int_V dx^3 M(\vec{x}, t)
+            %% MAGNETIZATION calculates de novo from dscNifti \int_{V_{mask}} dx^3 mask(\vec{x}) M(\vec{x}, t) / V_{mask}
             
             m = zeros(1, size(this.dscNifti,4));
             for t = 1:length(m)
                 m(t) = sum(sum(sum(this.dscNifti.img(:,:,:,t) .* this.maskNifti_.img, 1), 2), 3);                
             end
-            m = m * this.dV;
+            m = m / sum(sum(sum(this.maskNifti_.img)));
         end
         function kC   = kConcentration(this)
             %% KCONCENTRATION calculates de novo from dscNifti

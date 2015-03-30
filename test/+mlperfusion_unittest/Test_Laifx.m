@@ -1,8 +1,8 @@
-classdef Test_Laif < matlab.unittest.TestCase 
-	%% TEST_LAIF  
+classdef Test_Laifx < matlab.unittest.TestCase 
+	%% TEST_LAIFX  
 
-	%  Usage:  >> results = run(mlperfusion_unittest.Test_Laif)
- 	%          >> result  = run(mlperfusion_unittest.Test_Laif, 'test_dt')
+	%  Usage:  >> results = run(mlperfusion_unittest.Test_Laifx)
+ 	%          >> result  = run(mlperfusion_unittest.Test_Laifx, 'test_dt')
  	%  See also:  file:///Applications/Developer/MATLAB_R2014b.app/help/matlab/matlab-unit-test-framework.html
 
 	%  $Revision$ 
@@ -16,16 +16,17 @@ classdef Test_Laif < matlab.unittest.TestCase
 	properties 
         testMagn
  		testObj
-        F  = 1.885
-        S0 = 589.488
-        e  = 0.95
-        a  = 6.031
-        b  = 1.866
-        d  = 0.725
-        g  = 0.1
-        t0 = 8.152
-        t1 = 2*8.152
+        F  = 2.239176
+        S0 = 555.281677
+        a  = 5.886588
+        b  = 1.335361
+        d  = 0.489088
+        e  = 0.984358
+        g  = 0.116832
         n  = 0.1
+        t0 = 16.50000
+        t1 = 33
+        
         testFolder   = '/Users/jjlee/Local/src/mlcvl/mlperfusion/test/+mlperfusion_unittest'
         dscFilename  = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/ep2d_default_mcf.nii.gz'
         maskFilename = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/perfMask.nii.gz'
@@ -215,8 +216,10 @@ classdef Test_Laif < matlab.unittest.TestCase
             map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
             map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
             map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
-            this.testMagn = Laif.magnetization0(this.S0, this.F, this.a, this.b, this.d, this.times, this.t0); 
-            this.testObj  = Laif.simulateMcmc0( this.S0, this.F, this.a, this.b, this.d, this.times, this.t0, this.testMagn, map);
+            this.testMagn = Laif0.magnetization(this.F, this.S0, this.a, this.b, this.d, this.times, this.t0); 
+            assert(~any(isnan(    this.testMagn)));
+            assert(~any(~isfinite(this.testMagn)));
+            this.testObj  = Laif0.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.times, this.t0, this.testMagn, map);
             this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams0, 'RelTol', 0.05);
         end
         function test_simulateMcmc1(this)
@@ -225,14 +228,16 @@ classdef Test_Laif < matlab.unittest.TestCase
             fL = 0.8; fH = 1.2;
             map('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
             map('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
             map('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
             map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
             map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
+            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
             map('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
             map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
-            this.testMagn = Laif.magnetization1(this.S0, this.F, this.e, this.a, this.b, this.d, this.g, this.times, this.t0); 
-            this.testObj  = Laif.simulateMcmc1( this.S0, this.F, this.e, this.a, this.b, this.d, this.g, this.times, this.t0, this.testMagn, map);
+            this.testMagn = Laif1.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0); 
+            assert(~any(isnan(    this.testMagn)));
+            assert(~any(~isfinite(this.testMagn)));
+            this.testObj  = Laif1.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0, this.testMagn, map);
             this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams1, 'RelTol', 0.05);
         end
         function test_simulateMcmc2(this)
@@ -241,17 +246,56 @@ classdef Test_Laif < matlab.unittest.TestCase
             fL = 0.8; fH = 1.2;           
             map('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
             map('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
             map('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
             map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
             map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
+            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
             map('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
+            map('n')  = struct('fixed', 0, 'min', fL*this.n,  'mean', this.n,  'max', fH*this.n); 
             map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
             map('t1') = struct('fixed', 0, 'min', fL*this.t1, 'mean', this.t1, 'max', fH*this.t1); 
-            map('n')  = struct('fixed', 0, 'min', fL*this.n,  'mean', this.n,  'max', fH*this.n); 
-            this.testMagn = Laif.magnetization2(this.S0, this.F, this.e, this.a, this.b, this.d, this.g, this.times, this.t0, this.t1, this.n); 
-            this.testObj  = Laif.simulateMcmc2( this.S0, this.F, this.e, this.a, this.b, this.d, this.g, this.times, this.t0, this.t1, this.n, this.testMagn, map);
+            this.testMagn = Laif2.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1); 
+            assert(~any(isnan(    this.testMagn)));
+            assert(~any(~isfinite(this.testMagn)));
+            this.testObj  = Laif2.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1, this.testMagn, map);
             this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams2, 'RelTol', 0.05);
+        end
+        
+        function test_Laif0(this)
+            this.testObj = mlperfusion.Laif0.run(this.wbDsc.times, this.wbDsc.magnetization);
+            o = this.testObj;
+            
+            figure;
+            plot(o.independentData, o.estimateData, this.wbDsc.times, this.wbDsc.magnetization, 'o');
+            legend('Bayesian estimate', 'simulated data');
+            title(sprintf('Laif0:  F %g,bS0 %g, alpha %g, beta %g, delta %g, t0 %g', ...
+                  o.F, o.S0, o.a, o.b, o.d, o.t0));
+            xlabel('time/s');
+            ylabel('magnetization/arbitrary');
+        end
+        function test_Laif1(this)
+            this.testObj = mlperfusion.Laif1.run(this.wbDsc.times, this.wbDsc.magnetization);
+            o = this.testObj;
+            
+            figure;
+            plot(o.independentData, o.estimateData, this.wbDsc.times, this.wbDsc.magnetization, 'o');
+            legend('Bayesian estimate', 'simulated data');
+            title(sprintf('Laif1:  F %g, S0 %g, alpha %g, beta %g, delta %g, eps %g, gamma %g, t0 %g', ...
+                  o.F, o.S0, o.a, o.b, o.d, o.e, o.g, o.t0));
+            xlabel('time/s');
+            ylabel('magnetization/arbitrary');
+        end
+        function test_Laif2(this)
+            this.testObj = mlperfusion.Laif2.run(this.wbDsc.times, this.wbDsc.magnetization);
+            o = this.testObj;
+            
+            figure;
+            plot(o.independentData, o.estimateData, this.wbDsc.times, this.wbDsc.magnetization, 'o');
+            legend('Bayesian estimate', 'simulated data');
+            title(sprintf('Laif1:  F %g, S0 %g, alpha %g, beta %g, delta %g, eps %g, gamma %g, nu %g, t0 %g, t1 %g', ...
+                  o.F, o.S0, o.a, o.b, o.d, o.e, o.g, o.n, o.t0, o.t1));
+            xlabel('time/s');
+            ylabel('magnetization/arbitrary');
         end
  	end 
 
@@ -262,7 +306,7 @@ classdef Test_Laif < matlab.unittest.TestCase
     end 
     
  	methods 
- 		function this = Test_Laif
+ 		function this = Test_Laifx
             this = this@matlab.unittest.TestCase;
             this = this.buildDsc;
  		end 
@@ -275,7 +319,7 @@ classdef Test_Laif < matlab.unittest.TestCase
     end
     
     methods (Access = 'private')
-        function this = buildDsc(this)            
+        function this = buildDsc(this)
             import mlfourd.*;
             this.wbDsc = mlperfusion.WholeBrainDSC( ...
                        this.dscFilename, ...
