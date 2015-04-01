@@ -1,4 +1,4 @@
-classdef ILaif  
+classdef (Abstract) ILaif  
 	%% ILAIF   
 
 	%  $Revision$ 
@@ -9,19 +9,25 @@ classdef ILaif
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
  	 
-	properties (Abstract)        
-        S0_laif
-        CBF_laif
-        CBV_laif
-        t0_laif
-        alpha_laif
-        beta_laif
-        delta_laif
-        gamma_laif
-        eps_laif
-        t1_laif
-        nu_laif
+	properties (Abstract) 
+        map
+        expectedBestFitParams
     end 
+    
+    methods (Static, Abstract)   
+        magnetization
+        kConcentration
+        flowTerm
+        steadyStateTerm
+        simulateMcmc
+    end
+    
+    methods (Abstract) 
+        itsMagnetization(this)
+        itsKConcentration(this)
+        priorLow(this)
+        priorHigh(this)
+    end
 
 	%  Created with Newcl by John J. Lee after newfcn by Frank Gonzalez-Morphy 
 end

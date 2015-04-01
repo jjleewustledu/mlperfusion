@@ -1,4 +1,4 @@
-classdef IMRCurve < mlio.IOInterface 
+classdef (Abstract) IMRCurve < mlio.IOInterface 
 	%% IMRCURVE   
 
 	%  $Revision$ 
@@ -33,8 +33,8 @@ classdef IMRCurve < mlio.IOInterface
     end 
     
     methods (Abstract)
-        magnetization(this)
-        kConcentration(this)
+        itsMagnetization(this)
+        itsKConcentration(this)
     end
     
 	%  Created with Newcl by John J. Lee after newfcn by Frank Gonzalez-Morphy 

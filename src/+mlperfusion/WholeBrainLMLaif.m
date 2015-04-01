@@ -1,4 +1,4 @@
-classdef WholeBrainLMLaif < mlperfusion.IMRCurve & mlperfusion.ILaif  
+classdef WholeBrainLMLaif < mlperfusion.IMRCurve 
 	%% WHOLEBRAINLMLAIF   
 
 	%  $Revision$ 
@@ -191,18 +191,18 @@ classdef WholeBrainLMLaif < mlperfusion.IMRCurve & mlperfusion.ILaif
             this.wholeBrainDSC_ = p.Results.wholeBrainDSC;
             this.conc = this.kConcentration;
         end       
-        function m    = magnetization(this)
+        function m    = itsMagnetization(this)
             m = this.S0_laif * exp(-this.CBF_laif*this.kConcentration);
         end
-        function kC   = kConcentration(this)
+        function kC   = itsKConcentration(this)
             ti = this.times;
             kC = this.eps_laif * this.flowTerm(this.alpha_laif, this.beta_laif, this.delta_laif, ti, this.t0_laif) + ...
                  (1 - this.eps_laif) * this.steadyStateTerm(this.delta_laif, this.gamma_laif, ti, this.t0_laif);
         end     
-        function m    = magnetization2(this)
+        function m    = itsMagnetization2(this)
             m = this.S0_laif * exp(-this.CBF_laif*this.kConcentration);
         end
-        function kC   = kConcentration2(this)
+        function kC   = itsKConcentration2(this)
             ti = this.times;
             kC = this.eps_laif * this.flowTerm(this.alpha_laif, this.beta_laif, this.delta_laif, ti, this.t0_laif) + ...
                  this.nu_laif  * this.flowTerm(this.alpha_laif, this.beta_laif, this.delta_laif, ti, this.t1_laif) + ...

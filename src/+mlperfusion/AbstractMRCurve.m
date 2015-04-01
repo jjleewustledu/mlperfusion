@@ -1,4 +1,4 @@
-classdef AbstractMRCurve < mlperfusion.IMRCurve 
+classdef (Abstract) AbstractMRCurve < mlperfusion.IMRCurve 
 	%% ABSTRACTMRCURVE   
 
 	%  $Revision$ 

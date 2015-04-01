@@ -1,4 +1,4 @@
-classdef AbstractLaif < mlbayesian.AbstractMcmcProblem  
+classdef (Abstract) AbstractLaif < mlbayesian.AbstractMcmcProblem & mlperfusion.ILaif
 	%% ABSTRACTLAIF   
 
 	%  $Revision$ 
@@ -8,17 +8,13 @@ classdef AbstractLaif < mlbayesian.AbstractMcmcProblem
  	%  and checked into repository $URL$,  
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
- 	 
-
-	properties  		 
-    end 
     
     methods (Static)        
         function conc = flowTerm(a, b, d, t, t0)
             conc0 = exp(-d*t) * b^(a+1) / (b-d)^(a+1);
             conc0 = conc0 .* gammainc((b - d)*t, a+1);
             
-            idx_t0 = mlperfusion.Laif0.indexOf(t, t0);
+            idx_t0 = mlperfusion.AbstractLaif.indexOf(t, t0);
             conc   = zeros(1, length(t));
             conc(idx_t0:end) = conc0(1:end-idx_t0+1);
             conc   = abs(conc);
@@ -27,7 +23,7 @@ classdef AbstractLaif < mlbayesian.AbstractMcmcProblem
             conc0 = (1 - exp(-d*t))/d + ...
                     (exp(-g*t) - exp(-d*t))/(g - d);            
             
-            idx_t0 = mlperfusion.Laif0.indexOf(t, t0);
+            idx_t0 = mlperfusion.AbstractLaif.indexOf(t, t0);
             conc   = zeros(1, length(t));
             conc(idx_t0:end) = conc0(1:end-idx_t0+1);
             conc   = abs(conc);
@@ -41,6 +37,12 @@ classdef AbstractLaif < mlbayesian.AbstractMcmcProblem
  			 
  			this = this@mlbayesian.AbstractMcmcProblem(varargin{:});  
  		end 
+        function x = priorLow(~, x)
+            x = 0.9*x;
+        end
+        function x = priorHigh(~, x)
+            x = 1.1*x;
+        end
  	end 
     
     %% PROTECTED

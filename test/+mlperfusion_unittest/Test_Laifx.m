@@ -15,39 +15,56 @@ classdef Test_Laifx < matlab.unittest.TestCase
 
 	properties 
         testMagn
- 		testObj
-        F  = 2.239176
-        S0 = 555.281677
-        a  = 5.886588
-        b  = 1.335361
-        d  = 0.489088
-        e  = 0.984358
-        g  = 0.116832
-        n  = 0.1
-        t0 = 16.50000
-        t1 = 33
-        
+ 		testObj        
         testFolder   = '/Users/jjlee/Local/src/mlcvl/mlperfusion/test/+mlperfusion_unittest'
         dscFilename  = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/ep2d_default_mcf.nii.gz'
         maskFilename = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/perfMask.nii.gz'
  	end 
 
-    properties (Dependent)
-        expectedBestFitParams0
-        expectedBestFitParams1
-        expectedBestFitParams2
+    properties (Dependent)       
+        F  
+        S0
+        a 
+        b  
+        d  
+        e  
+        g 
+        n  
+        t0 
+        t1
         times
     end
     
     methods %% GET/SET
-        function e = get.expectedBestFitParams0(this)
-            e = [this.F this.S0 this.a this.b this.d this.t0]';
+        function x = get.F(this)
+            x = this.testObj.F;
         end
-        function e = get.expectedBestFitParams1(this)
-            e = [this.F this.S0 this.a this.b this.d this.e this.g this.t0]';
+        function x = get.S0(this)
+            x = this.testObj.S0;
         end
-        function e = get.expectedBestFitParams2(this)
-            e = [this.F this.S0 this.a this.b this.d this.e this.g this.n this.t0 this.t1]';
+        function x = get.a(this)
+            x = this.testObj.a;
+        end
+        function x = get.b(this)
+            x = this.testObj.b;
+        end
+        function x = get.d(this)
+            x = this.testObj.d;
+        end
+        function x = get.e(this)
+            x = this.testObj.e;
+        end
+        function x = get.g(this)
+            x = this.testObj.g;
+        end
+        function x = get.n(this)
+            x = this.testObj.n;
+        end
+        function x = get.t0(this)
+            x = this.testObj.t0;
+        end
+        function x = get.t1(this)
+            x = this.testObj.t1;
         end
         function t = get.times(this)
             t = this.wbDsc.times;
@@ -208,61 +225,67 @@ classdef Test_Laifx < matlab.unittest.TestCase
         
         function test_simulateMcmc0(this)
             import mlperfusion.*;
-            map = containers.Map;
-            fL = 0.8; fH = 1.2;
-            map('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
-            map('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            map('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
-            map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
-            map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
-            map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
+            this.testObj = Laif0;
+            aMap = containers.Map;
+            fL = 0.85; fH = 1.15;
+            aMap('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
+            aMap('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
+            aMap('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
+            aMap('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
+            aMap('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
+            aMap('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0);            
             this.testMagn = Laif0.magnetization(this.F, this.S0, this.a, this.b, this.d, this.times, this.t0); 
             assert(~any(isnan(    this.testMagn)));
             assert(~any(~isfinite(this.testMagn)));
-            this.testObj  = Laif0.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.times, this.t0, this.testMagn, map);
-            this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams0, 'RelTol', 0.05);
+            
+            o = Laif0.simulateMcmc(this.F, this.S0, this.a, this.b, this.d, this.times, this.t0, this.testMagn, aMap);
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         function test_simulateMcmc1(this)
             import mlperfusion.*;
-            map = containers.Map;
-            fL = 0.8; fH = 1.2;
-            map('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
-            map('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            map('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
-            map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
-            map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
-            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
-            map('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
-            map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
+            this.testObj = Laif1;
+            aMap = containers.Map;
+            fL = 0.85; fH = 1.15;
+            aMap('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
+            aMap('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
+            aMap('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
+            aMap('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
+            aMap('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
+            aMap('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
+            aMap('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
+            aMap('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0);            
             this.testMagn = Laif1.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0); 
             assert(~any(isnan(    this.testMagn)));
             assert(~any(~isfinite(this.testMagn)));
-            this.testObj  = Laif1.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0, this.testMagn, map);
-            this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams1, 'RelTol', 0.05);
+            
+            o = Laif1.simulateMcmc(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0, this.testMagn, aMap);
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         function test_simulateMcmc2(this)
             import mlperfusion.*;
-            map = containers.Map; 
-            fL = 0.8; fH = 1.2;           
-            map('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
-            map('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            map('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
-            map('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
-            map('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
-            map('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
-            map('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
-            map('n')  = struct('fixed', 0, 'min', fL*this.n,  'mean', this.n,  'max', fH*this.n); 
-            map('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
-            map('t1') = struct('fixed', 0, 'min', fL*this.t1, 'mean', this.t1, 'max', fH*this.t1); 
+            this.testObj = Laif2;
+            aMap = containers.Map; 
+            fL = 0.85; fH = 1.15;  
+            aMap('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
+            aMap('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
+            aMap('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
+            aMap('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
+            aMap('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
+            aMap('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', fH*this.e);
+            aMap('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
+            aMap('n')  = struct('fixed', 0, 'min', fL*this.n,  'mean', this.n,  'max', fH*this.n); 
+            aMap('t0') = struct('fixed', 0, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
+            aMap('t1') = struct('fixed', 0, 'min', fL*this.t1, 'mean', this.t1, 'max', fH*this.t1);            
             this.testMagn = Laif2.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1); 
             assert(~any(isnan(    this.testMagn)));
             assert(~any(~isfinite(this.testMagn)));
-            this.testObj  = Laif2.simulateMcmc( this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1, this.testMagn, map);
-            this.assertEqual(this.testObj.bestFitParams, this.expectedBestFitParams2, 'RelTol', 0.05);
+            
+            o = Laif2.simulateMcmc(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1, this.testMagn, aMap);
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         
         function test_Laif0(this)
-            this.testObj = mlperfusion.Laif0.run(this.wbDsc.times, this.wbDsc.magnetization);
+            this.testObj = mlperfusion.Laif0.runLaif(this.wbDsc.times, this.wbDsc.magnetization);
             o = this.testObj;
             
             figure;
@@ -272,9 +295,11 @@ classdef Test_Laifx < matlab.unittest.TestCase
                   o.F, o.S0, o.a, o.b, o.d, o.t0));
             xlabel('time/s');
             ylabel('magnetization/arbitrary');
+            
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         function test_Laif1(this)
-            this.testObj = mlperfusion.Laif1.run(this.wbDsc.times, this.wbDsc.magnetization);
+            this.testObj = mlperfusion.Laif1.runLaif(this.wbDsc.times, this.wbDsc.magnetization);
             o = this.testObj;
             
             figure;
@@ -284,18 +309,22 @@ classdef Test_Laifx < matlab.unittest.TestCase
                   o.F, o.S0, o.a, o.b, o.d, o.e, o.g, o.t0));
             xlabel('time/s');
             ylabel('magnetization/arbitrary');
+            
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         function test_Laif2(this)
-            this.testObj = mlperfusion.Laif2.run(this.wbDsc.times, this.wbDsc.magnetization);
+            this.testObj = mlperfusion.Laif2.runLaif(this.wbDsc.times, this.wbDsc.itsMagnetization);
             o = this.testObj;
             
             figure;
-            plot(o.independentData, o.estimateData, this.wbDsc.times, this.wbDsc.magnetization, 'o');
+            plot(o.independentData, o.estimateData, this.wbDsc.times, this.wbDsc.itsMagnetization, 'o');
             legend('Bayesian estimate', 'simulated data');
             title(sprintf('Laif1:  F %g, S0 %g, alpha %g, beta %g, delta %g, eps %g, gamma %g, nu %g, t0 %g, t1 %g', ...
                   o.F, o.S0, o.a, o.b, o.d, o.e, o.g, o.n, o.t0, o.t1));
             xlabel('time/s');
             ylabel('magnetization/arbitrary');
+            
+            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
  	end 
 

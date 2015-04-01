@@ -15,16 +15,16 @@ classdef Laif2 < mlperfusion.AbstractLaif
         xLabel    = 'times/s'
         yLabel    = 'arbitrary'
         
-        F  = 2.024300
+        F  = 2.07516507779463 % set to expected best-fit
         S0 = 555.281677
-        a  = 5.037182
-        b  = 1.201236
-        d  = 0.435770
-        e  = 0.985232
-        g  = 0.126983
-        n  = 0.118039
+        a  = 4.28402640552277
+        b  = 1.02780265322418
+        d  = 0.44221060372853
+        e  = 0.985601
+        g  = 0.133524246570285
+        n  = 0.128365518460767
         t0 = 16.50000
-        t1 = 32.968789
+        t1 = 33.738480
     end 
     
     properties (Dependent)
@@ -34,22 +34,21 @@ classdef Laif2 < mlperfusion.AbstractLaif
     methods %% GET
         function m = get.map(this)            
             m = containers.Map;
-            fL = 0.8; fH = 1.2;
-            m('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
-            m('S0') = struct('fixed', 1, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            m('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
-            m('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
-            m('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
-            m('e')  = struct('fixed', 0, 'min', fL*this.e,  'mean', this.e,  'max', 1);
-            m('g')  = struct('fixed', 0, 'min', fL*this.g,  'mean', this.g,  'max', fH*this.g);
-            m('n')  = struct('fixed', 0, 'min', fL*this.n,  'mean', this.n,  'max', fH*this.n);
-            m('t0') = struct('fixed', 1, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
-            m('t1') = struct('fixed', 0, 'min', fL*this.t1, 'mean', this.t1, 'max', fH*this.t1); 
+            m('F')  = struct('fixed', 0, 'min', this.priorLow(this.F),  'mean', this.F,  'max', this.priorHigh(this.F));
+            m('S0') = struct('fixed', 1, 'min', this.priorLow(this.S0), 'mean', this.S0, 'max', this.priorHigh(this.S0));
+            m('a')  = struct('fixed', 0, 'min', this.priorLow(this.a),  'mean', this.a,  'max', this.priorHigh(this.a)); 
+            m('b')  = struct('fixed', 0, 'min', this.priorLow(this.b),  'mean', this.b,  'max', this.priorHigh(this.b));
+            m('d')  = struct('fixed', 0, 'min', this.priorLow(this.d),  'mean', this.d,  'max', this.priorHigh(this.d));
+            m('e')  = struct('fixed', 0, 'min', this.priorLow(this.e),  'mean', this.e,  'max', 1);
+            m('g')  = struct('fixed', 0, 'min', this.priorLow(this.g),  'mean', this.g,  'max', this.priorHigh(this.g));
+            m('n')  = struct('fixed', 0, 'min', this.priorLow(this.n),  'mean', this.n,  'max', this.priorHigh(this.n));
+            m('t0') = struct('fixed', 1, 'min', this.priorLow(this.t0), 'mean', this.t0, 'max', this.priorHigh(this.t0)); 
+            m('t1') = struct('fixed', 0, 'min', this.priorLow(this.t1), 'mean', this.t1, 'max', this.priorHigh(this.t1)); 
         end
     end
     
     methods (Static) 
-        function this = run(times, magn)
+        function this = runLaif(times, magn)
             this = mlperfusion.Laif2(times, magn);
             this = this.estimateS0t0;
             this = this.estimateParameters(this.map);
@@ -85,20 +84,27 @@ classdef Laif2 < mlperfusion.AbstractLaif
     end
 
 	methods        
- 		function this = Laif2(times, magn, varargin) 
+ 		function this = Laif2(varargin) 
  			%% LAIF2 
- 			%  Usage:  this = Laif2(WholeBrainDSC_object) 
+ 			%  Usage:  this = Laif2([times, magnetization]) 
  			
- 			this = this@mlperfusion.AbstractLaif(times, magn, varargin{:});  
-            p = inputParser;
-            addRequired(p, 'times', @isnumeric);
-            addRequired(p, 'magn',  @isnumeric);
-            parse(p, times, magn, varargin{:});
+ 			this = this@mlperfusion.AbstractLaif(varargin{:});            
+            this.expectedBestFitParams_ = ...
+                [this.F this.S0 this.a this.b this.d this.e this.g this.n this.t0 this.t1]';
         end 
-        function this = estimateParameters(this, map)
+        function m    = itsMagnetization(this)
+            m = mlperfusion.Laif2.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1);
+        end
+        function kc   = itsKConcentration(this)
+            kc = mlperfusion.Laif2.kConcentration(this.e, this.a, this.b, this.d, this.g, this.n, this.times, this.t0, this.t1);
+        end
+        function this = estimateParameters(this, varargin)
+            ip = inputParser;
+            addOptional(ip, 'map', this.map, @(x) isa(x, 'containers.Map'));
+            parse(ip, varargin{:});
+            
             import mlbayesian.*;
-            assert(isa(map, 'containers.Map'));
-            this.paramsManager = BayesianParameters(map);
+            this.paramsManager = BayesianParameters(varargin{:});
             this.ensureKeyOrdering({'F' 'S0' 'a' 'b' 'd' 'e' 'g' 'n' 't0' 't1'});
             this.mcmc          = MCMC(this, this.dependentData, this.paramsManager);
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
@@ -126,7 +132,7 @@ classdef Laif2 < mlperfusion.AbstractLaif
                 this.finalParams(keys{10}));
         end
         function ed = estimateDataFast(this, F, S0, a, b, d, e, g, n, t0, t1)
-            ed = this.magnetization(F, S0, a, b, d, e, g, n, this.independentData, t0, t1);
+            ed = this.magnetization(F, S0, a, b, d, e, g, n, this.times, t0, t1);
         end
         function ps   = adjustParams(this, ps)            
             manager = this.paramsManager;

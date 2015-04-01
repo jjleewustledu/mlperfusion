@@ -55,12 +55,12 @@ classdef Test_WholeBrainDSC < matlab.unittest.TestCase
         end
         function test_magnetization(this)
             figure
-            plot(this.testObj.times, this.testObj.magnetization);
+            plot(this.testObj.times, this.testObj.itsMagnetization);
             title('\int_{V_{mask}} dx^3 mask(x) M(x,t_{native}) / V_{mask}');
         end
         function test_kConcentration(this)
             figure
-            plot(this.testObj.times, this.testObj.kConcentration);
+            plot(this.testObj.times, this.testObj.itsKConcentration);
             title('k C(t_{native})');
         end
  	end 

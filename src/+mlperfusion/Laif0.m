@@ -30,18 +30,17 @@ classdef Laif0 < mlperfusion.AbstractLaif
     methods %% GET
         function m = get.map(this)            
             m = containers.Map;
-            fL = 0.8; fH = 1.2;
-            m('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
-            m('S0') = struct('fixed', 1, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
-            m('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
-            m('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
-            m('d')  = struct('fixed', 0, 'min', fL*this.d,  'mean', this.d,  'max', fH*this.d);
-            m('t0') = struct('fixed', 1, 'min', fL*this.t0, 'mean', this.t0, 'max', fH*this.t0); 
+            m('F')  = struct('fixed', 0, 'min', this.priorLow(this.F),  'mean', this.F,  'max', this.priorHigh(this.F));
+            m('S0') = struct('fixed', 1, 'min', this.priorLow(this.S0), 'mean', this.S0, 'max', this.priorHigh(this.S0));
+            m('a')  = struct('fixed', 0, 'min', this.priorLow(this.a),  'mean', this.a,  'max', this.priorHigh(this.a)); 
+            m('b')  = struct('fixed', 0, 'min', this.priorLow(this.b),  'mean', this.b,  'max', this.priorHigh(this.b));
+            m('d')  = struct('fixed', 0, 'min', this.priorLow(this.d),  'mean', this.d,  'max', this.priorHigh(this.d));
+            m('t0') = struct('fixed', 1, 'min', this.priorLow(this.t0), 'mean', this.t0, 'max', this.priorHigh(this.t0)); 
         end
     end
     
     methods (Static)  
-        function this = run(times, magn)
+        function this = runLaif(times, magn)
             this = mlperfusion.Laif0(times, magn);
             this = this.estimateS0t0;
             this = this.estimateParameters(this.map);
@@ -74,20 +73,21 @@ classdef Laif0 < mlperfusion.AbstractLaif
     end
 
 	methods
- 		function this = Laif0(times, magn, varargin) 
+ 		function this = Laif0(varargin) 
  			%% LAIF0 
- 			%  Usage:  this = Laif0(WholeBrainDSC_object) 
+ 			%  Usage:  this = Laif0([times, magnetization]) 
  			
- 			this = this@mlperfusion.AbstractLaif(times, magn);  
-            p = inputParser;
-            addRequired(p, 'times', @isnumeric);
-            addRequired(p, 'magn',  @isnumeric);
-            parse(p, times, magn, varargin{:});
+ 			this = this@mlperfusion.AbstractLaif(varargin{:});
+            this.expectedBestFitParams_ = ...
+                [this.F this.S0 this.a this.b this.d this.t0]';
         end 
-        function this = estimateParameters(this, map)
+        function this = estimateParameters(this, varargin)
+            ip = inputParser;
+            addOptional(ip, 'map', this.map, @(x) isa(x, 'containers.Map'));
+            parse(ip, varargin{:});
+            
             import mlbayesian.*;
-            assert(isa(map, 'containers.Map'));
-            this.paramsManager = BayesianParameters(map);
+            this.paramsManager = BayesianParameters(p.Results.map);
             this.ensureKeyOrdering({'F' 'S0' 'a' 'b' 'd' 't0'});
             this.mcmc          = MCMC(this, this.dependentData, this.paramsManager);
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
