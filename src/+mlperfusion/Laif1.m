@@ -52,15 +52,21 @@ classdef Laif1 < mlperfusion.AbstractLaif
                   
         function m    = magnetization(F, S0, a, b, d, e, g, t, t0)
             import mlperfusion.*;
-            m = S0 * exp(-F * Laif1.kConcentration(e, a, b, d, g, t, t0));
+            m = S0 * exp(-F * Laif1.kConcentration(a, b, d, e, g, t, t0));
             m = abs(m);
         end 
-        function kC   = kConcentration(e, a, b, d, g, t, t0)
+        function kC   = kConcentration(a, b, d, e, g, t, t0)
             import mlperfusion.*;
             kC =      e  * Laif1.flowTerm(a, b, d, t, t0) + ...
                  (1 - e) * Laif1.steadyStateTerm(d, g, t, t0);
             kC = abs(kC);
-        end          
+        end         
+        function kA   = kAif(a, b, e, g, t, t0)
+            import mlperfusion.*
+            kA =      e  * Laif1.bolusFlowTerm(a, b, t, t0) + ...
+                 (1 - e) * Laif1.bolusSteadyStateTerm(g, t, t0);
+            kA = abs(kA);
+        end 
         function this = simulateMcmc(F, S0, a, b, d, e, g, t, t0, dsc, map)
             
             import mlperfusion.*;            
@@ -87,22 +93,33 @@ classdef Laif1 < mlperfusion.AbstractLaif
             this.expectedBestFitParams_ = ...
                 [this.F this.S0 this.a this.b this.d this.e this.g this.t0]';
         end 
+        function m    = itsMagnetization(this)
+            m = mlperfusion.Laif1.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0);
+        end
+        function kc   = itsKConcentration(this)
+            kc = mlperfusion.Laif1.kConcentration(this.a, this.b, this.d, this.e, this.g, this.times, this.t0);
+        end
+        function ka   = itsKAif(this)
+            ka = mlperfusion.Laif1.kAif(this.a, this.b, this.e, this.g, this.times, this.t0);
+        end
         function this = estimateParameters(this, varargin)
             ip = inputParser;
             addOptional(ip, 'map', this.map, @(x) isa(x, 'containers.Map'));
             parse(ip, varargin{:});
             
             import mlbayesian.*;
-            this.paramsManager = BayesianParameters(p.Results.map);
+            this.paramsManager = BayesianParameters(ip.Results.map);
             this.ensureKeyOrdering({'F' 'S0' 'a' 'b' 'd' 'e' 'g' 't0'});
             this.mcmc          = MCMC(this, this.dependentData, this.paramsManager);
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
             this.F = this.finalParams('F');
+            this.S0 = this.finalParams('S0');
             this.a = this.finalParams('a');
             this.b = this.finalParams('b');
             this.d = this.finalParams('d');
             this.e = this.finalParams('e');
             this.g = this.finalParams('g');
+            this.t0 = this.finalParams('t0');
         end
         function ed = estimateData(this)            
             keys = this.paramsManager.paramsMap.keys;

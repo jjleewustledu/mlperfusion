@@ -9,7 +9,33 @@ classdef (Abstract) AbstractLaif < mlbayesian.AbstractMcmcProblem & mlperfusion.
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
     
-    methods (Static)        
+    properties (Dependent)
+        taus
+    end
+    
+    methods %% GET
+        function t = get.taus(this)
+            t = this.times(2:end) - this.times(1:end-1);
+        end
+    end
+    
+    methods (Static)
+        function conc = bolusFlowTerm(a, b, t, t0)
+            conc0 = b^(a+1) * t.^a .* exp(-b*t) / gamma(a+1);
+            
+            idx_t0 = mlperfusion.AbstractLaif.indexOf(t, t0);
+            conc   = zeros(1, length(t));
+            conc(idx_t0:end) = conc0(1:end-idx_t0+1);
+            conc   = abs(conc);
+        end
+        function conc = bolusSteadyStateTerm(g, t, t0)
+            conc0 = (1 - exp(-g*t));
+            
+            idx_t0 = mlperfusion.AbstractLaif.indexOf(t, t0);
+            conc   = zeros(1, length(t));
+            conc(idx_t0:end) = conc0(1:end-idx_t0+1);
+            conc   = abs(conc);
+        end
         function conc = flowTerm(a, b, d, t, t0)
             conc0 = exp(-d*t) * b^(a+1) / (b-d)^(a+1);
             conc0 = conc0 .* gammainc((b - d)*t, a+1);

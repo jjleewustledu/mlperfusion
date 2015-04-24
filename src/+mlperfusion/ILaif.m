@@ -11,12 +11,14 @@ classdef (Abstract) ILaif
  	 
 	properties (Abstract) 
         map
+        taus
         expectedBestFitParams
     end 
     
     methods (Static, Abstract)   
         magnetization
         kConcentration
+        kAif
         flowTerm
         steadyStateTerm
         simulateMcmc
@@ -25,6 +27,7 @@ classdef (Abstract) ILaif
     methods (Abstract) 
         itsMagnetization(this)
         itsKConcentration(this)
+        itsKAif(this)
         priorLow(this)
         priorHigh(this)
     end

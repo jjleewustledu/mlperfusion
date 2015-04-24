@@ -55,7 +55,12 @@ classdef Laif0 < mlperfusion.AbstractLaif
             import mlperfusion.*;
             kC = Laif0.flowTerm(a, b, d, t, t0);
             kC = abs(kC);
-        end               
+        end
+        function kA   = kAif(a, b, t, t0)
+            import mlperfusion.*
+            kA = Laif0.bolusFlowTerm(a, b, t, t0);
+            kA = abs(kA);
+        end
         function this = simulateMcmc(F, S0, a, b, d, t, t0, dsc, map)            
             import mlperfusion.*;            
             magn = Laif0.magnetization(F, S0, a, b, d, t, t0);
@@ -81,20 +86,31 @@ classdef Laif0 < mlperfusion.AbstractLaif
             this.expectedBestFitParams_ = ...
                 [this.F this.S0 this.a this.b this.d this.t0]';
         end 
+        function ka   = itsKAif(this)
+            ka = mlperfusion.Laif0.kAif(this.a, this.b, this.times, this.t0);
+        end
+        function m    = itsMagnetization(this)
+            m = mlperfusion.Laif0.magnetization(this.F, this.S0, this.a, this.b, this.d, this.times, this.t0);
+        end
+        function kc   = itsKConcentration(this)
+            kc = mlperfusion.Laif0.kConcentration(this.a, this.b, this.d, this.times, this.t0);
+        end
         function this = estimateParameters(this, varargin)
             ip = inputParser;
             addOptional(ip, 'map', this.map, @(x) isa(x, 'containers.Map'));
             parse(ip, varargin{:});
             
             import mlbayesian.*;
-            this.paramsManager = BayesianParameters(p.Results.map);
+            this.paramsManager = BayesianParameters(ip.Results.map);
             this.ensureKeyOrdering({'F' 'S0' 'a' 'b' 'd' 't0'});
             this.mcmc          = MCMC(this, this.dependentData, this.paramsManager);
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
             this.F = this.finalParams('F');
+            this.S0 = this.finalParams('S0');
             this.a = this.finalParams('a');
             this.b = this.finalParams('b');
             this.d = this.finalParams('d');
+            this.t0 = this.finalParams('t0');
         end
         function ed   = estimateData(this)
             keys = this.paramsManager.paramsMap.keys;

@@ -15,16 +15,16 @@ classdef Laif2 < mlperfusion.AbstractLaif
         xLabel    = 'times/s'
         yLabel    = 'arbitrary'
         
-        F  = 2.07516507779463 % set to expected best-fit
+        F  = 2.248191 % set to expected best-fit
         S0 = 555.281677
-        a  = 4.28402640552277
-        b  = 1.02780265322418
-        d  = 0.44221060372853
-        e  = 0.985601
-        g  = 0.133524246570285
-        n  = 0.128365518460767
+        a  = 4.155459
+        b  = 1.023300
+        d  = 0.423558
+        e  = 0.987518
+        g  = 0.136305
+        n  = 0.124036
         t0 = 16.50000
-        t1 = 33.738480
+        t1 = 33.189811
     end 
     
     properties (Dependent)
@@ -56,16 +56,23 @@ classdef Laif2 < mlperfusion.AbstractLaif
                   
         function m    = magnetization(F, S0, a, b, d, e, g, n, t, t0, t1)
             import mlperfusion.*;
-            m = S0 * exp(-F * Laif2.kConcentration(e, a, b, d, g, n, t, t0, t1));
+            m = S0 * exp(-F * Laif2.kConcentration(a, b, d, e, g, n, t, t0, t1));
             m = abs(m);
         end 
-        function kC   = kConcentration(e, a, b, d, g, n, t, t0, t1)
+        function kC   = kConcentration(a, b, d, e, g, n, t, t0, t1)
             import mlperfusion.*;
-            kC =      e  * Laif2.flowTerm(a, b, d, t, t0) + ...
-                      n  * Laif2.flowTerm(a, b, d, t, t1) + ...
-                 (1 - e) * Laif2.steadyStateTerm(d, g, t, t0);
+            kC = (1 - n) * e  * Laif2.flowTerm(a, b, d, t, t0) + ...
+                      n  * e  * Laif2.flowTerm(a, b, d, t, t1) + ...
+                      (1 - e) * Laif2.steadyStateTerm(d, g, t, t0);
             kC = abs(kC);
-        end          
+        end     
+        function kA   = kAif(a, b, e, g, n, t, t0, t1)
+            import mlperfusion.*
+            kA = (1 - n) * e  * Laif1.bolusFlowTerm(a, b, t, t0) + ...
+                      n  * e  * Laif2.bolusFlowTerm(a, b, t, t1) + ...
+                      (1 - e) * Laif1.bolusSteadyStateTerm(g, t, t0);
+            kA = abs(kA);
+        end      
         function this = simulateMcmc(F, S0, a, b, d, e, g, n, t, t0, t1, dsc, map)
             
             import mlperfusion.*;            
@@ -96,7 +103,10 @@ classdef Laif2 < mlperfusion.AbstractLaif
             m = mlperfusion.Laif2.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1);
         end
         function kc   = itsKConcentration(this)
-            kc = mlperfusion.Laif2.kConcentration(this.e, this.a, this.b, this.d, this.g, this.n, this.times, this.t0, this.t1);
+            kc = mlperfusion.Laif2.kConcentration(this.a, this.b, this.d, this.e, this.g, this.n, this.times, this.t0, this.t1);
+        end
+        function ka   = itsKAif(this)
+            ka = mlperfusion.Laif2.kAif(this.a, this.b, this.e, this.g, this.n, this.times, this.t0, this.t1);
         end
         function this = estimateParameters(this, varargin)
             ip = inputParser;
@@ -109,13 +119,15 @@ classdef Laif2 < mlperfusion.AbstractLaif
             this.mcmc          = MCMC(this, this.dependentData, this.paramsManager);
             [~,~,this.mcmc]    = this.mcmc.runMcmc;
             this.F = this.finalParams('F');
+            this.S0 = this.finalParams('S0');
             this.a = this.finalParams('a');
             this.b = this.finalParams('b');
             this.d = this.finalParams('d');
             this.e = this.finalParams('e');
             this.g = this.finalParams('g');
-            this.g = this.finalParams('n');
-            this.g = this.finalParams('t1');
+            this.n = this.finalParams('n');
+            this.t0 = this.finalParams('t0');
+            this.t1 = this.finalParams('t1');
         end
         function ed = estimateData(this)            
             keys = this.paramsManager.paramsMap.keys;
