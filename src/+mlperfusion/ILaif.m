@@ -28,8 +28,6 @@ classdef (Abstract) ILaif
         itsMagnetization(this)
         itsKConcentration(this)
         itsKAif(this)
-        priorLow(this)
-        priorHigh(this)
     end
 
 	%  Created with Newcl by John J. Lee after newfcn by Frank Gonzalez-Morphy 

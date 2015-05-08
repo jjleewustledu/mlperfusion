@@ -63,12 +63,6 @@ classdef (Abstract) AbstractLaif < mlbayesian.AbstractMcmcProblem & mlperfusion.
  			 
  			this = this@mlbayesian.AbstractMcmcProblem(varargin{:});  
  		end 
-        function x = priorLow(~, x)
-            x = 0.9*x;
-        end
-        function x = priorHigh(~, x)
-            x = 1.1*x;
-        end
  	end 
     
     %% PROTECTED

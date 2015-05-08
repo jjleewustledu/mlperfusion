@@ -16,9 +16,9 @@ classdef Test_Laifx < matlab.unittest.TestCase
 	properties 
         testMagn
  		testObj        
-        testFolder   = '/Users/jjlee/Local/src/mlcvl/mlperfusion/test/+mlperfusion_unittest'
-        dscFilename  = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/ep2d_default_mcf.nii.gz'
-        maskFilename = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/perfMask.nii.gz'
+        testFolder   = '/Volumes/SeagateBP3/cvl/np755/mm01-007_p7267_2008jun16/bayesian_pet'
+        dscFilename  = '/Volumes/SeagateBP3/cvl/np755/mm01-007_p7267_2008jun16/bayesian_pet/ep2d_default_mcf.nii.gz'
+        maskFilename = '/Volumes/SeagateBP3/cvl/np755/mm01-007_p7267_2008jun16/bayesian_pet/ep2d_mask.nii.gz'
         test_plots   = true
         test_mcmc    = true
  	end 

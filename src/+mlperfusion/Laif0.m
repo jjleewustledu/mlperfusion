@@ -15,12 +15,19 @@ classdef Laif0 < mlperfusion.AbstractLaif
         xLabel    = 'times/s'
         yLabel    = 'arbitrary'        
         
-        F  = 2.104938
-        S0 = 555.281677
-        a  = 6.773606
-        b  = 1.578004
-        d  = 0.606071
-        t0 = 16.50000
+        F  = 2.095813
+        S0 = 540.664554
+        a  = 5.582462
+        b  = 1.278431
+        d  = 0.493286
+        t0 = 16.465791
+        
+        FStd  = 0.436116
+        S0Std = 1.358619
+        aStd  = 0.795849
+        bStd  = 0.200685
+        dStd  = 0.111199
+        t0Std = 0.439540
     end 
     
     properties (Dependent)
@@ -28,24 +35,29 @@ classdef Laif0 < mlperfusion.AbstractLaif
     end
     
     methods %% GET
-        function m = get.map(this)            
+        function m = get.map(this)
             m = containers.Map;
-            m('F')  = struct('fixed', 0, 'min', this.priorLow(this.F),  'mean', this.F,  'max', this.priorHigh(this.F));
-            m('S0') = struct('fixed', 1, 'min', this.priorLow(this.S0), 'mean', this.S0, 'max', this.priorHigh(this.S0));
-            m('a')  = struct('fixed', 0, 'min', this.priorLow(this.a),  'mean', this.a,  'max', this.priorHigh(this.a)); 
-            m('b')  = struct('fixed', 0, 'min', this.priorLow(this.b),  'mean', this.b,  'max', this.priorHigh(this.b));
-            m('d')  = struct('fixed', 0, 'min', this.priorLow(this.d),  'mean', this.d,  'max', this.priorHigh(this.d));
-            m('t0') = struct('fixed', 1, 'min', this.priorLow(this.t0), 'mean', this.t0, 'max', this.priorHigh(this.t0)); 
+            N = 3;
+            m('F')  = struct('fixed', 0, 'min', this.F  - N*this.FStd,  'mean', this.F,  'max', this.F  + N*this.FStd);
+            m('S0') = struct('fixed', 1, 'min', this.S0 - N*this.S0Std, 'mean', this.S0, 'max', this.S0 + N*this.S0Std);
+            m('a')  = struct('fixed', 0, 'min', this.a  - N*this.aStd,  'mean', this.a,  'max', this.a  + N*this.aStd); 
+            m('b')  = struct('fixed', 0, 'min', this.b  - N*this.bStd,  'mean', this.b,  'max', this.b  + N*this.bStd);
+            m('d')  = struct('fixed', 0, 'min', this.d  - N*this.dStd,  'mean', this.d,  'max', this.d  + N*this.dStd);
+            m('t0') = struct('fixed', 1, 'min', this.t0 - N*this.t0Std, 'mean', this.t0, 'max', this.t0 + N*this.t0Std); 
         end
     end
     
-    methods (Static)  
+    methods (Static)
+        function this = load(dscFn, maskFn)
+            import mlperfusion.*;
+            wbDsc = WholeBrainDSC(dscFn, maskFn);
+            this = Laif0(wbDsc.times, wbDsc.itsMagnetization);
+        end
         function this = runLaif(times, magn)
             this = mlperfusion.Laif0(times, magn);
             this = this.estimateS0t0;
             this = this.estimateParameters(this.map);
-        end
-        
+        end        
         function m    = magnetization(F, S0, a, b, d, t, t0)
             import mlperfusion.*;
             m = S0 * exp(-F * Laif0.kConcentration(a, b, d, t, t0));
@@ -61,7 +73,7 @@ classdef Laif0 < mlperfusion.AbstractLaif
             kA = Laif0.bolusFlowTerm(a, b, t, t0);
             kA = abs(kA);
         end
-        function this = simulateMcmc(F, S0, a, b, d, t, t0, dsc, map)            
+        function this = simulateMcmc(F, S0, a, b, d, t, t0, dsc, map)
             import mlperfusion.*;            
             magn = Laif0.magnetization(F, S0, a, b, d, t, t0);
             this = Laif0(t, dsc);
@@ -86,6 +98,14 @@ classdef Laif0 < mlperfusion.AbstractLaif
             this.expectedBestFitParams_ = ...
                 [this.F this.S0 this.a this.b this.d this.t0]';
         end 
+        
+        function this = simulateItsMcmc(this)
+            import mlperfusion.*;
+            magn = Laif0.magnetization( ...
+                   this.F, this.S0, this.a, this.b, this.d, this.times, this.t0); 
+            this = Laif0.simulateMcmc( ...
+                   this.F, this.S0, this.a, this.b, this.d, this.times, this.t0, magn, this.map);
+        end
         function ka   = itsKAif(this)
             ka = mlperfusion.Laif0.kAif(this.a, this.b, this.times, this.t0);
         end
@@ -94,6 +114,10 @@ classdef Laif0 < mlperfusion.AbstractLaif
         end
         function kc   = itsKConcentration(this)
             kc = mlperfusion.Laif0.kConcentration(this.a, this.b, this.d, this.times, this.t0);
+        end
+        function this = estimateAll(this)
+            this = this.estimateS0t0;
+            this = this.estimateParameters(this.map);
         end
         function this = estimateParameters(this, varargin)
             ip = inputParser;
@@ -123,8 +147,53 @@ classdef Laif0 < mlperfusion.AbstractLaif
                 this.finalParams(keys{6}));
         end   
         function ed   = estimateDataFast(this, F, S0, a, b, d, t0)  
-            ed = this.magnetization(F, S0, a, b, d, this.independentData, t0);
+            ed = this.magnetization(F, S0, a, b, d, this.times, t0);
         end         
+        function        plotInitialData(this)
+            figure;
+            max_m  = max(this.itsMagnetization);
+            max_dd = max(this.dependentData);
+            plot(this.times, this.itsMagnetization/max_m, ...
+                 this.times, this.dependentData/max_dd);
+            title(sprintf('Laif0.plotInitialData:  %s', str2pnum(pwd)), 'Interpreter', 'none');
+            legend('Bayesian magn', 'magn from data');
+            xlabel('time/s');
+            ylabel(sprintf('arbitrary; rescaled by %g, %g', max_m, max_dd));
+        end
+        function        plotProduct(this)
+            figure;
+            plot(this.times, this.itsMagnetization, this.times, this.dependentData, 'o');
+            legend('Bayesian magn', 'magn from data');
+            title(sprintf('Laif0.plotProduct:  F %g, S0 %g, a %g, b %g, d %g, t0 %g', ...
+                this.F, this.S0, this.a, this.b, this.d, this.t0), 'Interpreter', 'none');
+            xlabel(this.xLabel);
+            ylabel(this.yLabel);
+        end        
+        function        plotParVars(this, par, vars)
+            assert(lstrfind(par, properties('mlperfusion.Laif0')));
+            assert(isnumeric(vars));
+            switch (par)
+                case 'F'
+                    for v = 1:length(vars)
+                        args{v} = { vars(v) this.S0 this.a  this.b  this.d  this.t0  this.times }; end
+                case 'S0'
+                    for v = 1:length(vars)
+                        args{v} = { this.F  vars(v) this.a  this.b  this.d  this.t0  this.times }; end
+                case 'a'
+                    for v = 1:length(vars)
+                        args{v} = { this.F  this.S0 vars(v) this.b  this.d  this.t0  this.times }; end
+                case 'b'
+                    for v = 1:length(vars)
+                        args{v} = { this.F  this.S0 this.a  vars(v) this.d  this.t0  this.times }; end
+                case 'd'
+                    for v = 1:length(vars)
+                        args{v} = { this.F  this.S0 this.a  this.b  vars(v) this.t0  this.times }; end
+                case 't0'
+                    for v = 1:length(vars)
+                        args{v} = { this.F  this.S0 this.a  this.b  this.d  vars(v)  this.times }; end
+            end
+            this.plotParArgs(par, args, vars);
+        end
         function ps   = adjustParams(this, ps)
             manager = this.paramsManager;
             if (ps(manager.paramsIndices('d')) > ps(manager.paramsIndices('b')))
@@ -132,6 +201,28 @@ classdef Laif0 < mlperfusion.AbstractLaif
                 ps(manager.paramsIndices('b')) = ps(manager.paramsIndices('d'));
                 ps(manager.paramsIndices('d')) = tmp;
             end
+        end
+    end
+    
+    %% PRIVATE
+    
+    methods (Access = 'private')
+        function plotParArgs(this, par, args, vars)
+            assert(lstrfind(par, properties('mlperfusion.Laif0')));
+            assert(iscell(args));
+            assert(isnumeric(vars));
+            import mlperfusion.*;
+            figure
+            hold on
+            for v = 1:size(args,2)
+                argsv = args{v};
+                plot(this.times, Laif0.magnetization(argsv{1}, argsv{2}, argsv{3}, argsv{4}, argsv{5}, argsv{7}, argsv{6}));
+            end
+            title(sprintf('F %g, S0 %g, a %g, b %g, d %g, t0 %g', ...
+                          argsv{1}, argsv{2}, argsv{3}, argsv{4}, argsv{5}, argsv{6}));
+            legend(cellfun(@(x) sprintf('%s = %g', par, x), num2cell(vars), 'UniformOutput', false));
+            xlabel(this.xLabel);
+            ylabel(this.yLabel);
         end
     end
     

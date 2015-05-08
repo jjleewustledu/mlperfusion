@@ -23,6 +23,15 @@ classdef Laif1 < mlperfusion.AbstractLaif
         e  = 0.984358
         g  = 0.116832
         t0 = 16.50000
+        
+        FS = eps
+        S0S = eps
+        aS = eps
+        bS = eps
+        dS = eps
+        eS = eps
+        gS = eps
+        t0S = eps
     end 
     
     properties (Dependent)
@@ -32,14 +41,14 @@ classdef Laif1 < mlperfusion.AbstractLaif
     methods %% GET
         function m = get.map(this)            
             m = containers.Map;
-            m('F')  = struct('fixed', 0, 'min', this.priorLow(this.F),  'mean', this.F,  'max', this.priorHigh(this.F));
-            m('S0') = struct('fixed', 1, 'min', this.priorLow(this.S0), 'mean', this.S0, 'max', this.priorHigh(this.S0));
-            m('a')  = struct('fixed', 0, 'min', this.priorLow(this.a),  'mean', this.a,  'max', this.priorHigh(this.a)); 
-            m('b')  = struct('fixed', 0, 'min', this.priorLow(this.b),  'mean', this.b,  'max', this.priorHigh(this.b));
-            m('d')  = struct('fixed', 0, 'min', this.priorLow(this.d),  'mean', this.d,  'max', this.priorHigh(this.d));
-            m('e')  = struct('fixed', 0, 'min', this.priorLow(this.e),  'mean', this.e,  'max', 1);
-            m('g')  = struct('fixed', 0, 'min', this.priorLow(this.g),  'mean', this.g,  'max', this.priorHigh(this.g));
-            m('t0') = struct('fixed', 1, 'min', this.priorLow(this.t0), 'mean', this.t0, 'max', this.priorHigh(this.t0)); 
+            m('F')  = struct('fixed', 0, 'min', this.priorLow(this.F, this.FS),  'mean', this.F,  'max', this.priorHigh(this.F, this.FS));
+            m('S0') = struct('fixed', 1, 'min', this.priorLow(this.S0,this.S0S), 'mean', this.S0, 'max', this.priorHigh(this.S0,thisS0S));
+            m('a')  = struct('fixed', 0, 'min', this.priorLow(this.a, this.aS),  'mean', this.a,  'max', this.priorHigh(this.a, thisaS)); 
+            m('b')  = struct('fixed', 0, 'min', this.priorLow(this.b, this.bS),  'mean', this.b,  'max', this.priorHigh(this.b, thisbS));
+            m('d')  = struct('fixed', 0, 'min', this.priorLow(this.d, this.dS),  'mean', this.d,  'max', this.priorHigh(this.d, thisdS));
+            m('e')  = struct('fixed', 0, 'min', this.priorLow(this.e, this.eS),  'mean', this.e,  'max', 1);
+            m('g')  = struct('fixed', 0, 'min', this.priorLow(this.g, this.gS),  'mean', this.g,  'max', this.priorHigh(this.g, this.gS));
+            m('t0') = struct('fixed', 1, 'min', this.priorLow(this.t0,this.t0S), 'mean', this.t0, 'max', this.priorHigh(this.t0,this.t0S)); 
         end
     end
     
@@ -152,6 +161,17 @@ classdef Laif1 < mlperfusion.AbstractLaif
             if (ps(manager.paramsIndices('g')) == ps(manager.paramsIndices('d')))
                 ps(manager.paramsIndices('g')) = ps(manager.paramsIndices('g')) + eps;
             end
+        end
+    end
+       
+    %% PRIVATE
+    
+    methods (Access = 'private')
+        function x = priorLow(~, x, xS)
+            x = x - 2*xS;
+        end
+        function x = priorHigh(~, x, xS)
+            x = x + 2*xS;
         end
     end
     
