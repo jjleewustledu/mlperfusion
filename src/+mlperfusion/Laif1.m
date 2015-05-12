@@ -10,7 +10,6 @@ classdef Laif1 < mlperfusion.AbstractLaif
  	%  $Id$ 
  	 
 	properties
-        showPlots = true	 
         baseTitle = 'Laif1'
         xLabel    = 'times/s'
         yLabel    = 'arbitrary'

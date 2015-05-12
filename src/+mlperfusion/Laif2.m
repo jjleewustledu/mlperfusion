@@ -8,13 +8,8 @@ classdef Laif2 < mlperfusion.AbstractLaif
  	%  and checked into repository $URL$,  
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
-
-    properties (Constant)
-        N_PARAMS = 10;
-    end
     
 	properties
-        showPlots = true	 
         baseTitle = 'Laif2'
         xLabel    = 'times/s'
         yLabel    = 'arbitrary'
@@ -94,10 +89,16 @@ classdef Laif2 < mlperfusion.AbstractLaif
                       n  * e  * Laif2.bolusFlowTerm(a, b, t, t1) + ...
                       (1 - e) * Laif2.bolusSteadyStateTerm(g, t, t0);
             kA = abs(kA);
-        end              
-        function kA   = kAif0(a, b, t, t0)
+        end   
+        function kA   = kAif_1(a, b, t, t0)
             import mlperfusion.*
             kA = Laif2.bolusFlowTerm(a, b, t, t0);
+            kA = abs(kA);
+        end
+        function kA   = kAif_2(a, b, n, t, t0, t1)
+            import mlperfusion.*
+            kA = (1 - n) * Laif2.bolusFlowTerm(a, b, t, t0) + ...
+                      n  * Laif2.bolusFlowTerm(a, b, t, t1);
             kA = abs(kA);
         end
         function this = simulateMcmc(F, S0, a, b, d, e, g, n, t, t0, t1, dsc, map)
@@ -143,8 +144,11 @@ classdef Laif2 < mlperfusion.AbstractLaif
         function ka   = itsKAif(this)
             ka = mlperfusion.Laif2.kAif(this.a, this.b, this.e, this.g, this.n, this.times, this.t0, this.t1);
         end
-        function ka   = itsKAif0(this)
-            ka = mlperfusion.Laif2.kAif0(this.a, this.b, this.times, this.t0);
+        function ka   = itsKAif_1(this)
+            ka = mlperfusion.Laif2.kAif_1(this.a, this.b, this.times, this.t0);
+        end
+        function ka   = itsKAif_2(this)
+            ka = mlperfusion.Laif2.kAif_2(this.a, this.b, this.n, this.times, this.t0, this.t1); 
         end
         function this = estimateAll(this)
             this = this.estimateS0t0;

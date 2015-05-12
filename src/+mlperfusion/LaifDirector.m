@@ -84,41 +84,6 @@ classdef LaifDirector
             this = LaifDirector( ...
                    BrainWaterKernel.load(laifObj, dcvFn));
         end
-        
-        function laifs = trainLaif2(locations)
-            if (ischar(locations)); locations = {locations}; end
-            assert(iscell(locations));
-            import mlperfusion.*;
-            pwd0 = pwd;
-            diary(sprintf('LaifDirector.trainLaif2_%s.log', datestr(now, 30)));
-            for l = 1:length(locations)
-                cd(locations{l});
-                this = LaifDirector.loadLaif2('ep2d_default_mcf.nii.gz', 'ep2d_mask.nii.gz');
-                this = this.estimateAll;
-                laifs{l} = this.product;
-            end
-            cd(pwd0);
-            save('LaifDirector.trainLaif2.laifs.mat', 'laifs')
-            diary off
-        end
-        function kernels = trainKernel(locations)
-            if (ischar(locations)); locations = {locations}; end
-            assert(iscell(locations));
-            import mlperfusion.*;
-            pwd0 = pwd;
-            diary(sprintf('LaifDirector.trainKernel_%s.log', datestr(now, 30)));
-            for l = 1:length(locations)
-                cd(locations{l});
-                pnum = str2pnum(locations{l});
-                load('LaifDirector.product.mat');
-                this = LaifDirector.loadKernel(laif, [pnum 'ho1.dcv']);
-                this = this.estimateAll;
-                kernels{l} = this.product;
-            end
-            cd(pwd0);
-            save('LaifDirector.trainKernel.kernels.mat', 'kernels')
-            diary off
-        end
     end
     
 	methods         
