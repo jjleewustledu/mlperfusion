@@ -69,6 +69,7 @@ classdef Laif2 < mlperfusion.AbstractLaif
             this = mlperfusion.Laif2(times, magn);
             this = this.estimateS0t0;
             this = this.estimateParameters(this.map);
+            this.plotProduct;
         end
                   
         function m    = magnetization(F, S0, a, b, d, e, g, n, t, t0, t1)

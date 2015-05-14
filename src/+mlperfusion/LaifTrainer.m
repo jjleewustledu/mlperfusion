@@ -12,13 +12,16 @@ classdef LaifTrainer < mlpet.AbstractTrainer
 
 	methods (Static)        
         function prods = trainLaif2
-            diary(sprintf('LaifTrainer.trainLaif2_%s.log', datestr(now, 30)));
             import mlperfusion.*;
             this = LaifTrainer;
             
             pwd0 = this.WORK_DIR;
+            cd(pwd0);            
+            diary(sprintf('LaifTrainer.trainLaif2_%s.log', datestr(now, 30)));
             for c = 1:length(this.MM_CASES)
-                cd(fullfile(pwd0, this.casePaths{c}));                
+                cd(fullfile(pwd0, this.casePaths{c})); 
+                fprintf('-------------------------------------------------------------------------------------------------------------------------------\n');
+                fprintf('AutoradiographyTrainer.trainLaif2 is working in %s\n', pwd);                             
                 this.director_ = ...
                     LaifDirector.loadLaif2(this.dscFn, this.dscMaskFn);
                 this.director_ = this.director_.estimateAll;
