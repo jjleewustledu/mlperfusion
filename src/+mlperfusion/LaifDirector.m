@@ -74,7 +74,7 @@ classdef LaifDirector
             this = LaifDirector( ...
                    Laif0.load(magnFn, maskFn));
         end
-        function this = loadKernel(laifObj, dcvFn)
+        function this = loadKernel(laifObj, dcvFn, dcvShift)
             p = inputParser;
             addRequired(p, 'laifObj', @(x) isa(x, 'mlperfusion.Laif2'));
             addRequired(p, 'dcvFn',   @(x) lexist(x, 'file'));
@@ -82,7 +82,7 @@ classdef LaifDirector
             
             import mlperfusion.* mlpet.*;           
             this = LaifDirector( ...
-                   BrainWaterKernel.load(laifObj, dcvFn));
+                   BrainWaterKernel.load(laifObj, dcvFn, dcvShift));
         end
     end
     
@@ -98,7 +98,6 @@ classdef LaifDirector
             
             this.builder_ = this.builder_.estimateAll;
             this.builder_.plotProduct;
-            this.builder_.save;
         end
         function this = estimatePriors(this)
             % estimate params for data, initial

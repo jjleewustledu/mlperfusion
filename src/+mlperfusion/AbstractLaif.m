@@ -10,10 +10,14 @@ classdef (Abstract) AbstractLaif < mlbayesian.AbstractMcmcProblem & mlperfusion.
  	%  $Id$ 
     
     properties (Dependent)
+        pnum
         taus
     end
     
     methods %% GET
+        function p = get.pnum(~)
+            p = str2pnum(pwd);
+        end
         function t = get.taus(this)
             t = this.times(2:end) - this.times(1:end-1);
         end
