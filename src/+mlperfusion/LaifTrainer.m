@@ -52,7 +52,7 @@ classdef LaifTrainer < mlpet.AbstractTrainer
             pwd0 = pwd;
             cd(this.WORK_DIR);            
             diary(sprintf('LaifTrainer.trainBrainWaterKernel_%s.log', datestr(now, 30)));
-            for c = 10:10 % 1:length(this.MM_CASES)
+            for c = 4:4 % 1:length(this.MM_CASES)
                 cd(fullfile(this.WORK_DIR, this.casePaths{c}));
                 fprintf('-------------------------------------------------------------------------------------------------------------------------------\n');
                 fprintf('LaifTrainer.trainBrainWaterKernel is working in %s\n', pwd);

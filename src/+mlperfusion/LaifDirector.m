@@ -82,7 +82,7 @@ classdef LaifDirector
             
             import mlperfusion.* mlpet.*;           
             this = LaifDirector( ...
-                   BrainWaterKernel.load(laifObj, dcvFn, dcvShift));
+                   BrainWaterKernel.load(laifObj, dcvFn, 0, dcvShift));
         end
     end
     
