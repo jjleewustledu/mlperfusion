@@ -33,8 +33,7 @@ classdef LaifTrainer < mlpet.AbstractTrainer
                 laif2    = this.director_.product; %#ok<NASGU>
                 save('LaifTrainer.trainLaif2.laif2.mat', 'laif2');
             end
-            
-            cd(pwd0);
+            cd(this.WORK_DIR);
             save(sprintf('LaifTrainer.trainLaif2.prods_%s.mat', datestr(now,30)), 'prods');
             cd(p.Results.figFolder);
             AutoradiographyTrainer.laif2;
@@ -52,7 +51,7 @@ classdef LaifTrainer < mlpet.AbstractTrainer
             pwd0 = pwd;
             cd(this.WORK_DIR);            
             diary(sprintf('LaifTrainer.trainBrainWaterKernel_%s.log', datestr(now, 30)));
-            for c = 4:4 % 1:length(this.MM_CASES)
+            for c = 1:length(this.MM_CASES)
                 cd(fullfile(this.WORK_DIR, this.casePaths{c}));
                 fprintf('-------------------------------------------------------------------------------------------------------------------------------\n');
                 fprintf('LaifTrainer.trainBrainWaterKernel is working in %s\n', pwd);
@@ -61,9 +60,8 @@ classdef LaifTrainer < mlpet.AbstractTrainer
                     LaifDirector.loadKernel(laif2, this.aifFn, this.DCV_SHIFTS(c)); 
                 this.director_ = this.director_.estimateAll;
                 prods{c} = this.director_.product;
-            end       
-            
-            cd(pwd0); 
+            end
+            cd(this.WORK_DIR); 
             save(sprintf('LaifTrainer.trainBrainWaterKernel.prods_%s.mat', datestr(now,30)), 'prods');
             cd(p.Results.figFolder);
             AutoradiographyTrainer.saveFigs;
