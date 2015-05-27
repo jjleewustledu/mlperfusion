@@ -1,4 +1,4 @@
-classdef LaifTrainer < mlpet.AbstractTrainer 
+classdef LaifTrainer < mlpet.AbstractAutoradiographyTrainer 
 	%% LAIFTRAINER   
 
 	%  $Revision$ 
@@ -20,10 +20,10 @@ classdef LaifTrainer < mlpet.AbstractTrainer
             parse(p, varargin{:}); 
             
             pwd0 = pwd;
-            cd(this.WORK_DIR);            
+            cd(this.logPath);            
             diary(sprintf('LaifTrainer.trainLaif2_%s.log', datestr(now, 30)));
-            for c = 1:length(this.MM_CASES)
-                cd(fullfile(this.WORK_DIR, this.casePaths{c})); 
+            for c = 1:length(this.moyamoyaCases)
+                cd(fullfile(this.logPath, this.casePaths{c})); 
                 fprintf('-------------------------------------------------------------------------------------------------------------------------------\n');
                 fprintf('LaifTrainer.trainLaif2 is working in %s\n', pwd);                             
                 this.director_ = ...
@@ -33,7 +33,7 @@ classdef LaifTrainer < mlpet.AbstractTrainer
                 laif2    = this.director_.product; %#ok<NASGU>
                 save('LaifTrainer.trainLaif2.laif2.mat', 'laif2');
             end
-            cd(this.WORK_DIR);
+            cd(this.logPath);
             save(sprintf('LaifTrainer.trainLaif2.prods_%s.mat', datestr(now,30)), 'prods');
             cd(p.Results.figFolder);
             AutoradiographyTrainer.laif2;
@@ -49,10 +49,10 @@ classdef LaifTrainer < mlpet.AbstractTrainer
             parse(p, varargin{:});  
             
             pwd0 = pwd;
-            cd(this.WORK_DIR);            
+            cd(this.logPath);            
             diary(sprintf('LaifTrainer.trainBrainWaterKernel_%s.log', datestr(now, 30)));
-            for c = 1:length(this.MM_CASES)
-                cd(fullfile(this.WORK_DIR, this.casePaths{c}));
+            for c = 1:length(this.moyamoyaCases)
+                cd(fullfile(this.logPath, this.casePaths{c}));
                 fprintf('-------------------------------------------------------------------------------------------------------------------------------\n');
                 fprintf('LaifTrainer.trainBrainWaterKernel is working in %s\n', pwd);
                 load('LaifTrainer.trainLaif2.laif2.mat')
@@ -61,12 +61,17 @@ classdef LaifTrainer < mlpet.AbstractTrainer
                 this.director_ = this.director_.estimateAll;
                 prods{c} = this.director_.product;
             end
-            cd(this.WORK_DIR); 
+            cd(this.logPath); 
             save(sprintf('LaifTrainer.trainBrainWaterKernel.prods_%s.mat', datestr(now,30)), 'prods');
             cd(p.Results.figFolder);
             AutoradiographyTrainer.saveFigs;
             cd(pwd0);
             diary off
+        end
+    end
+    
+    methods
+        function this = LaifTrainer
         end
     end
 
