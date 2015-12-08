@@ -9,23 +9,17 @@ classdef (Abstract) ILaif
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
  	 
-	properties (Abstract) 
-        map
-        taus
-        expectedBestFitParams
-    end 
-    
     methods (Static, Abstract)   
-        magnetization
         kConcentration
         kAif
+        bolusFlowTerm
+        bolusSteadyStateTerm
         flowTerm
         steadyStateTerm
         simulateMcmc
     end
     
     methods (Abstract) 
-        itsMagnetization(this)
         itsKConcentration(this)
         itsKAif(this)
     end

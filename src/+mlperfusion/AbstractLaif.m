@@ -74,15 +74,15 @@ classdef (Abstract) AbstractLaif < mlbayesian.AbstractMcmcProblem & mlperfusion.
     methods (Access = 'protected')
         function this = estimateS0t0(this)
             searchFraction = 0.05;
-            bigDrop = searchFraction * (max(this.dependentData) - min(this.dependentData));
-            for t = 1:length(this.independentData)-1
-                if (abs(this.dependentData(t+1) - this.dependentData(t)) > bigDrop)
-                    tlast = t;
+            bigChange = searchFraction * (max(this.dependentData) - min(this.dependentData));
+            for ti = 1:length(this.independentData)-1
+                if (abs(this.dependentData(ti+1) - this.dependentData(ti)) > bigChange)
+                    tilast = ti;
                     break
                 end
             end
-            this.S0 = mean(this.dependentData(1:tlast));
-            this.t0 = this.independentData(tlast);
+            this.S0 = mean(this.dependentData(1:tilast));
+            this.t0 = this.independentData(tilast);
         end
     end 
     
