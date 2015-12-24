@@ -2,26 +2,24 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
 	%% PLAIF1TRAINING does Bayesian parameter estimation on the arterial-line data and the scanner detector-array data 
     %  with equal contributions of the sum-of-squares to the cost function.  This will be the basis for training
     %  prior ranges.  
-
-	%  $Revision$ 
- 	%  was created $Date$ 
- 	%  by $Author$,  
- 	%  last modified $LastChangedDate$ 
- 	%  and checked into repository $URL$,  
- 	%  developed on Matlab 8.4.0.150421 (R2014b) 
- 	%  $Id$ 
+	
+	%  $Revision$
+ 	%  was created 25-Nov-2015 
+ 	%  by jjlee,
+ 	%  last modified $LastChangedDate$
+ 	%  and checked into repository /Users/jjlee/Local/src/mlcvl/mlperfusion/src/+mlperfusion.
+ 	%% It was developed on Matlab 8.5.0.197613 (R2015a) for MACI64.
  	 
 	properties        
-        F  = 0.0121
-        PS = 0.0312
-        R0 = 3.04e6
-        S0 = 4.19e6
-        a  = 3.43
-        b  = 0.283
-        e  = 0.0130
-        g  = 0.285
-        t0 = 17.5 % for wellCounts
-        u0 = 46.2 % for tscCounts
+        F  = 0.0122
+        PS = 0.0364
+        S0 = 3.61e6
+        a  = 2.21
+        b  = 0.214
+        e  = 0.0123
+        g  = 0.717
+        t0 = 19.3 % for wellCounts
+        u0 = 47.4 % for tscCounts
         
         xLabel = 'times/s'
         yLabel = 'activity'
@@ -38,16 +36,15 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
             bt = sprintf('%s %s', class(this), str2pnum(pwd));
         end
         function dt = get.detailedTitle(this)
-            dt = sprintf('%s\nF %g, PS %g, R0 %g, S0 %g, a %g, b %g, e %g, g %g, t0 %g, u0 %g', ...
+            dt = sprintf('%s\nF %g, PS %g, S0 %g, a %g, b %g, e %g, g %g, t0 %g, u0 %g', ...
                          this.baseTitle, ...
-                         this.F, this.PS, this.R0, this.S0, this.a, this.b, this.e, this.g, this.t0, this.u0);
+                         this.F, this.PS, this.S0, this.a, this.b, this.e, this.g, this.t0, this.u0);
         end
         function m  = get.mapParams(this)
             m = containers.Map;
-            N = 2;
+            N = 4;
             m('F')  = struct('fixed', 0, 'min', 0.004305,                    'mean', this.F,  'max', 0.01229);
             m('PS') = struct('fixed', 0, 'min', 0.009275,                    'mean', this.PS, 'max', 0.03675);
-            m('R0') = struct('fixed', 0, 'min', max(this.R0 - N*this.R0, 0), 'mean', this.R0, 'max', this.R0 + N*this.R0);
             m('S0') = struct('fixed', 0, 'min', max(this.S0 - N*this.S0, 0), 'mean', this.S0, 'max', this.S0 + N*this.S0);
             m('a')  = struct('fixed', 0, 'min', max(this.a  - N*this.a,  0), 'mean', this.a,  'max', this.a  + N*this.a); 
             m('b')  = struct('fixed', 0, 'min', max(this.b  - N*this.b,  0), 'mean', this.b,  'max', this.b  + N*this.b);
@@ -73,9 +70,9 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
                 {dcv.times      ecat.times}, ...
                 {dcv.wellCounts ecat.tscCounts'});
         end   
-        function wc   = wellCounts(R0, a, b, e, g, t0, t)
+        function wc   = wellCounts(S0, a, b, e, g, t0, t)
             import mlperfusion.*;
-            wc = R0 * PLaif1Training.kAif(a, b, e, g, t0, t);
+            wc = S0 * PLaif1Training.kAif(a, b, e, g, t0, t);
         end 
         function tc   = tscCounts(F, PS, S0, a, b, e, g, u0, t)
             import mlperfusion.*;
@@ -96,9 +93,9 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
             kC     = m * F * (PLaif1Training.flowTerm(a, beta, delta, u0, t) + ...
                               PLaif1Training.steadyStateTerm(delta, e, g, ldecay, u0, t));
         end
-        function this = simulateMcmc(F, PS, R0, S0, a, b, e, g, t0, u0, t, u, mapParams)
+        function this = simulateMcmc(F, PS, S0, a, b, e, g, t0, u0, t, u, mapParams)
             import mlperfusion.*;     
-            wellCnts = PLaif1Training.wellCounts(      R0, a, b, e, g, t0, t);
+            wellCnts = PLaif1Training.wellCounts(      S0, a, b, e, g, t0, t);
             tscCnts  = PLaif1Training.tscCounts(F, PS, S0, a, b, e, g, u0, u);
             this     = PLaif1Training({t t}, {wellCnts tscCnts});
             this     = this.estimateParameters(mapParams) %#ok<NOPRT>
@@ -113,7 +110,7 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
  			
  			this = this@mlperfusion.AbstractPLaif(varargin{:});
             this.expectedBestFitParams_ = ...
-                [this.F this.PS this.R0 this.S0 this.a this.b this.e this.g this.t0 this.u0]';
+                [this.F this.PS this.S0 this.a this.b this.e this.g this.t0 this.u0]';
         end 
         
         function this = simulateItsMcmc(this)
@@ -122,7 +119,7 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
                    this.F, this.PS, this.S0, this.a, this.b, this.e, this.g, this.t0, this.u0, this.times{1}, this.times{2}, this.mapParams);
         end
         function wc   = itsWellCounts(this)
-            wc = mlperfusion.PLaif1Training.wellCounts(this.R0, this.a, this.b, this.e, this.g, this.t0, this.times{1});
+            wc = mlperfusion.PLaif1Training.wellCounts(this.S0, this.a, this.b, this.e, this.g, this.t0, this.times{1});
         end
         function tc   = itsTscCounts(this)
             tc = mlperfusion.PLaif1Training.tscCounts(this.F, this.PS, this.S0, this.a, this.b, this.e, this.g, this.u0, this.times{2});
@@ -138,13 +135,14 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
             addOptional(ip, 'mapParams', this.mapParams, @(x) isa(x, 'containers.Map'));
             parse(ip, varargin{:});
             
-            [this.R0,this.t0] = this.estimateS0t0(this.independentData{1}, this.dependentData{1});
-            [this.S0,this.u0] = this.estimateS0t0(this.independentData{2}, this.dependentData{2});
+            [S01,this.t0] = this.estimateS0t0(this.independentData{1}, this.dependentData{1});
+            [S02,this.u0] = this.estimateS0t0(this.independentData{2}, this.dependentData{2});
+            this.S0 = mean([S01 S02]);
             
-            this = this.runMcmc(ip.Results.mapParams, {'F' 'PS' 'R0' 'S0' 'a' 'b' 'e' 'g' 't0' 'u0'});
+            this = this.runMcmc(ip.Results.mapParams, {'F' 'PS' 'S0' 'a' 'b' 'e' 'g' 't0' 'u0'});
         end
-        function ed   = estimateDataFast(this, F, PS, R0, S0, a, b, e, g, t0, u0)
-            ed{1} = this.wellCounts(      R0, a, b, e, g, t0, this.times{1});
+        function ed   = estimateDataFast(this, F, PS, S0, a, b, e, g, t0, u0)
+            ed{1} = this.wellCounts(      S0, a, b, e, g, t0, this.times{1});
             ed{2} = this.tscCounts(F, PS, S0, a, b, e, g, u0, this.times{2});
         end
         function ps   = adjustParams(this, ps)            

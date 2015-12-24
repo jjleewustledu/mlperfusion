@@ -344,7 +344,6 @@ classdef Test_PLaifxTraining < matlab.unittest.TestCase
             fL = 0.85; fH = 1.15;
             pmap('F')  = struct('fixed', 0, 'min', fL*this.F,  'mean', this.F,  'max', fH*this.F);
             pmap('PS') = struct('fixed', 0, 'min', fL*this.PS, 'mean', this.PS, 'max', fH*this.PS);
-            pmap('R0') = struct('fixed', 0, 'min', fL*this.R0, 'mean', this.R0, 'max', fH*this.R0);
             pmap('S0') = struct('fixed', 0, 'min', fL*this.S0, 'mean', this.S0, 'max', fH*this.S0);
             pmap('a')  = struct('fixed', 0, 'min', fL*this.a,  'mean', this.a,  'max', fH*this.a); 
             pmap('b')  = struct('fixed', 0, 'min', fL*this.b,  'mean', this.b,  'max', fH*this.b);
@@ -355,7 +354,7 @@ classdef Test_PLaifxTraining < matlab.unittest.TestCase
             
             import mlperfusion.*;
             o = PLaif1Training.simulateMcmc( ...
-                this.F, this.PS, this.R0, this.S0, this.a, this.b, this.e, this.g, this.t0, this.u0, this.times{1}, this.times{2}, pmap);
+                this.F, this.PS, this.S0, this.a, this.b, this.e, this.g, this.t0, this.u0, this.times{1}, this.times{2}, pmap);
             this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.05);
         end
         
@@ -367,8 +366,14 @@ classdef Test_PLaifxTraining < matlab.unittest.TestCase
             o = mlperfusion.PLaif1Training.load(this.ecatFilename, this.maskFilename, this.dcvFilename);
             o = o.estimateParameters;
             o.plot;
-            this.assertEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.1);
-        end        
+            this.verifyEqual(o.bestFitParams, o.expectedBestFitParams, 'RelTol', 0.1);
+        end
+        function test_plot(this)
+            o = mlperfusion.PLaif1Training.load(this.ecatFilename, this.maskFilename, this.dcvFilename);
+            o.plot;
+            %this.verifyEqual(o.bestFitParams, o.expectedBestFitParams);
+        end
+        
         function test_PLaiffTraining(this)
             %% TEST_PLAIFFTRAINING invokes PLaiffTraining on experimental data; best-fit parameters
             %  must match expected values to relative tolerance of 0.1.
