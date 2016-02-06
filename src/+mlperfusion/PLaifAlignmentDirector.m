@@ -1,4 +1,4 @@
-classdef PLaifAlignmentDirector 
+classdef PLaifAlignmentDirector < mlfsl.MultispectralAlignmentDirector
 	%% PLAIFALIGNMENTDIRECTOR  
 
 	%  $Revision$
@@ -8,17 +8,13 @@ classdef PLaifAlignmentDirector
  	%  and checked into repository /Users/jjlee/Local/src/mlcvl/mlperfusion/src/+mlperfusion.
  	%% It was developed on Matlab 9.0.0.307022 (R2016a) Prerelease for MACI64.
  	
-
-	properties
- 		
-    end
     
     methods (Static)
         function this = createAllAligned(sessPth)
             import mlperfusion.*;
             this = PLaifAlignmentDirector(PLaifAlignmentBuilder.loadUntouched(sessPth));             
-            this = this.ensureSessionAtlas(this.sessionAtlasFilename);
-            this = this.ensureSessionAnatomy(this.sessionAnatomyFilename);         
+            this = this.ensureSessionAtlas(this.sessionAtlas.fqfilename);
+            this = this.ensureSessionAnatomy(this.sessionAnatomy.fqfilename);         
         end
     end
     
@@ -28,25 +24,20 @@ classdef PLaifAlignmentDirector
  			%% PLAIFALIGNMENTDIRECTOR
  			%  Usage:  this = PLaifAlignmentDirector(PLaifAlignmentBuilder)
  			
+            this = this@mlfsl.MultispectralAlignmentDirector(bldr);
             assert(isa(bldr, 'mlperfusion.PLaifAlignmentBuilder'));
-            this.builder_  = bldr;
+            
             import mlfourd.*;
+            this.sessionAtlasFilename_ = '';
             if (lexist(this.sessionAtlasFilename))
                 this.sessionAtlas_ = ImagingContext(this.sessionAtlasFilename);
             end
+            this.sessionAnatomyFilename_ = '';
             if (lexist(this.sessionAnatomyFilename))
                 this.sessionAnatomy_ = ImagingContext(this.sessionAnatomyFilename);
             end
  		end
     end 
-    
-    %% PRIVATE
-    
-    properties (Access = 'private')
-        builder_
-        sessionAtlas_
-        sessionAnatomy_
-    end
 
 	%  Created with Newcl by John J. Lee after newfcn by Frank Gonzalez-Morphy
  end

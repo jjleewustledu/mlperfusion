@@ -10,7 +10,7 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
  	%  and checked into repository /Users/jjlee/Local/src/mlcvl/mlperfusion/src/+mlperfusion.
  	%% It was developed on Matlab 8.5.0.197613 (R2015a) for MACI64.
  	 
-	properties        
+	properties
         F  = 0.0122
         PS = 0.0364
         S0 = 3.61e6

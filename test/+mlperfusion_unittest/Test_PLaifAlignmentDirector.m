@@ -45,8 +45,8 @@ classdef Test_PLaifAlignmentDirector < matlab.unittest.TestCase
  		end
         function test_createAllAligned(this)
  			import mlperfusion.*;
-            testObj = PLaifAlignmentDirector.createAllAligned(this.sessionPath);
-            this.verifyClass(testObj, 'mlperfusion.PLaifAlignmentDirector');
+            pad = PLaifAlignmentDirector.createAllAligned(this.sessionPath);
+            this.verifyClass(pad, 'mlperfusion.PLaifAlignmentDirector');
             this.verifyEqual(web(this.urlAllAligned), 0);
         end
  	end

@@ -136,7 +136,7 @@ classdef (Abstract) AbstractMRCurve < mlperfusion.IMRCurve
             h = this.nifti_;
         end
         function this = set.header(this, h)
-            if (isa(h, 'mlfourd.NIfTIInterface'))
+            if (isa(h, 'mlfourd.INIfTI'))
                 this.nifti_ = h; end            
         end        
         
