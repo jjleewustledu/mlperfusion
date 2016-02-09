@@ -10,8 +10,8 @@ classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusio
  	%  $Id$     
     
     properties (Constant)        
-        LAMBDA           = 0.95     % brain-blood equilibrium partition coefficient, mL/mL, Herscovitch, Raichle, JCBFM (1985) 5:65
-        LAMBDA_DECAY_15O = 0.005677 % [15O] inverse half-life 
+        LAMBDA           = 0.95        % brain-blood equilibrium partition coefficient, mL/mL, Herscovitch, Raichle, JCBFM (1985) 5:65
+        LAMBDA_DECAY_15O = 0.005670379 % k | dq/dt = -kq, for activity q of [15O] with half-life = 122.24 s
     end
     
     methods (Static)
