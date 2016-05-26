@@ -14,10 +14,10 @@ classdef Test_PLaifxTraining < matlab.unittest.TestCase
  	%  $Id$ 
 
 	properties       
-        testFolder   = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet'
-        ecatFilename = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.nii.gz'
-        maskFilename = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/aparc_a2009s+aseg_mask_on_p7267ho1_sumt.nii.gz'
-        dcvFilename  = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.dcv'
+        testFolder   = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet')
+        ecatFilename = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.nii.gz')
+        maskFilename = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/aparc_a2009s+aseg_mask_on_p7267ho1_sumt.nii.gz')
+        dcvFilename  = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.dcv')
         test_plots   = true
         test_mcmc    = true
  	end 

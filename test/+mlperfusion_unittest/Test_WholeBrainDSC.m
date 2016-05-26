@@ -15,7 +15,7 @@ classdef Test_WholeBrainDSC < matlab.unittest.TestCase
 
 	properties 
         testObj
-        unittest_home = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp'
+        unittest_home = fullfile(getenv('UNITTESTS'), 'cvl/np755/mm01-007_p7267_2008jun16/perfusion_4dfp', '')
         dsc
         mask
         timeInts = 0:1:119
