@@ -139,7 +139,7 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
             [S02,this.u0] = this.estimateS0t0(this.independentData{2}, this.dependentData{2});
             this.S0 = mean([S01 S02]);
             
-            this = this.runMcmc(ip.Results.mapParams, {'F' 'PS' 'S0' 'a' 'b' 'e' 'g' 't0' 'u0'});
+            this = this.runMcmc(ip.Results.mapParams, 'keysToVerify', {'F' 'PS' 'S0' 'a' 'b' 'e' 'g' 't0' 'u0'});
         end
         function ed   = estimateDataFast(this, F, PS, S0, a, b, e, g, t0, u0)
             ed{1} = this.wellCounts(      S0, a, b, e, g, t0, this.times{1});
