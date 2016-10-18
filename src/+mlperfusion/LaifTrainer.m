@@ -16,7 +16,7 @@ classdef LaifTrainer < mlpet.AbstractAutoradiographyTrainer
             this = LaifTrainer;            
             
             p = inputParser;
-            addOptional(p, 'figFolder', pwd, @(x) lexist(x, 'dir'));
+            addOptional(p, 'figFolder', pwd, @isdir);
             parse(p, varargin{:}); 
             
             pwd0 = pwd;
@@ -45,7 +45,7 @@ classdef LaifTrainer < mlpet.AbstractAutoradiographyTrainer
             this = LaifTrainer;
             
             p = inputParser;
-            addOptional(p, 'figFolder', pwd, @(x) lexist(x, 'dir'));
+            addOptional(p, 'figFolder', pwd, @isdir);
             parse(p, varargin{:});  
             
             pwd0 = pwd;

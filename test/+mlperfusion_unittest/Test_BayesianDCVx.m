@@ -17,8 +17,8 @@ classdef Test_BayesianDCVx < matlab.unittest.TestCase
         model       = 1
         testMagn
  		testObj        
-        testFolder  = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet'
-        dcvFilename = '/Volumes/InnominateHD3/Local/test/cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.dcv'
+        testFolder  = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet')
+        dcvFilename = fullfile(getenv('UNITTESTS'), 'cvl/np755_Bayesian/mm01-007_p7267_2008jun16/bayesian_pet/p7267ho1.dcv')
         test_plots  = true
         test_mcmc   = true
  	end 

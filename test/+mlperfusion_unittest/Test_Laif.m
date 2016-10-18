@@ -27,8 +27,8 @@ classdef Test_Laif < matlab.unittest.TestCase
         t1 = 2*8.152
         n  = 0.1
         testFolder   = '/Users/jjlee/Local/src/mlcvl/mlperfusion/test/+mlperfusion_unittest'
-        dscFilename  = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/ep2d_default_mcf.nii.gz'
-        maskFilename = '/Volumes/InnominateHD2/Local/test/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/perfMask.nii.gz'
+        dscFilename  = fullfile(getenv('UNITTESTS'), 'cvl/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/ep2d_default_mcf.nii.gz')
+        maskFilename = fullfile(getenv('UNITTESTS'), 'cvl/np755/mm01-007_p7267_2008jun16/perfusion_4dfp/perfMask.nii.gz')
  	end 
 
     properties (Dependent)
