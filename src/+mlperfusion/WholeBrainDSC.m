@@ -79,6 +79,9 @@ classdef WholeBrainDSC < mlperfusion.AbstractMRCurve
         function        save(~)
             error('mlperfusion:notImplemented', 'WholeBrainDSC.save');
         end
+        function c    = char(this)
+            c = this.itsKConcentration;
+        end
     end 
     
     %% PRIVATE
