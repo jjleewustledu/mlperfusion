@@ -8,13 +8,7 @@ classdef (Abstract) IMRCurve < mlio.IOInterface
  	%  and checked into repository $URL$,  
  	%  developed on Matlab 8.4.0.150421 (R2014b) 
  	%  $Id$ 
- 	 
-
-	properties (Abstract, Constant) 		 
-        EXTENSION
-        TIMES_UNITS
-        CONC_UNITS
-    end 
+ 	
     
     properties (Abstract)  
         noclobber
