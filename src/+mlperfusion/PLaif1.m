@@ -6,7 +6,7 @@ classdef PLaif1 < mlperfusion.AbstractPLaif
  	%  by $Author$,  
  	%  last modified $LastChangedDate$ 
  	%  and checked into repository $URL$,  
- 	%  developed on Matlab 8.4.0.150421 (R2014b) 
+ 	%  developed on Matlab 8.4.0.150421 (R2014b).  Copyright 2015 John Joowon Lee. 
  	%  $Id$ 
  	 
 	properties
@@ -66,13 +66,13 @@ classdef PLaif1 < mlperfusion.AbstractPLaif
         function kC   = kConcentration(F, PS, a, b, e, g, t0, t)
             import mlperfusion.*;
             psfTerm = (1 - exp(-PS/F));
-            delta   = psfTerm * F / AbstractPLaif.LAMBDA; %  + AbstractPLaif.LAMBDA_DECAY -  AbstractPLaif.LAMBDA_DECAY for non-decaying gamma-variate bolus
+            delta   = psfTerm * F / LAMBDA; %  + AbstractPLaif.LAMBDA_DECAY -  AbstractPLaif.LAMBDA_DECAY for non-decaying gamma-variate bolus
             kC      = psfTerm * F * (PLaif1.flowTerm(a, b, delta, t0, t) + e * PLaif1.steadyStateTerm(delta, g, t0, t));
             kC      = abs(kC);
         end
         function kA   = kAif(a, b, e, g, t0, t)
             import mlperfusion.*
-            kA = exp(-AbstractPLaif.LAMBDA_DECAY*(t - t0)) .* AbstractPLaif.Heaviside(t, t0) .* ...
+            kA = exp(-LAMBDA_DECAY*(t - t0)) .* AbstractPLaif.Heaviside(t, t0) .* ...
                  (PLaif1.bolusFlowTerm(a, b, t0, t) + e * PLaif1.bolusSteadyStateTerm(g, t0, t));
             kA = abs(kA);
         end

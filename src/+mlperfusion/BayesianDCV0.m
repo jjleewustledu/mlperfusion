@@ -6,7 +6,7 @@ classdef BayesianDCV0 < mlperfusion.AbstractPLaif
  	%  by jjlee,
  	%  last modified $LastChangedDate$
  	%  and checked into repository /Users/jjlee/Local/src/mlcvl/mlperfusion/src/+mlperfusion.
- 	%% It was developed on Matlab 8.5.0.197613 (R2015a) for MACI64.
+ 	%% It was developed on Matlab 8.5.0.197613 (R2015a) for MACI64.  Copyright 2015 John Joowon Lee.
  	
 	properties
         baseTitle = 'BayesianDCV0'
@@ -46,7 +46,7 @@ classdef BayesianDCV0 < mlperfusion.AbstractPLaif
         end        
         function m    = wellCounts(S0, a, b, t0, t)
             import mlperfusion.*;
-            m = S0 * BayesianDCV0.kConcentration(a, b, t0, t) .* exp(-BayesianDCV0.LAMBDA_DECAY*(t - t0)) .* BayesianDCV0.Heaviside(t, t0);
+            m = S0 * BayesianDCV0.kConcentration(a, b, t0, t) .* exp(-LAMBDA_DECAY*(t - t0)) .* BayesianDCV0.Heaviside(t, t0);
         end         
         function kC   = kConcentration(a, b, t0, t)
             import mlperfusion.*;
