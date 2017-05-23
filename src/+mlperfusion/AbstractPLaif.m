@@ -15,17 +15,16 @@ classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusio
     end
     
     methods (Static)
-        function conc = bolusFlowFractal(a, b, p, t0, t)   
+        function conc = bolusFlowFractal(a, b, p, t0, t)
             if (t(1) >= t0) % saves extra flops from slide()
                 t_   = t - t0;
                 conc = t_.^a .* exp(-(b*t_).^p);
-                conc = abs(conc);
             else
                 t_   = t - t(1);
                 conc = t_.^a .* exp(-(b*t_).^p);
                 conc = mlperfusion.AbstractPLaif.slide(abs(conc), t, t0 - t(1));
             end
-            conc = conc * abs(p * b^(a+1) / gamma((a+1)/p));
+            conc = abs(conc*p*b^(a+1)/gamma((a+1)/p));
         end
         function conc = bolusFlowTerm(a, b, t0, t)
             if (t(1) >= t0)
@@ -37,7 +36,7 @@ classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusio
                 conc = t_.^a .* exp(-b*t_);
                 conc = mlperfusion.AbstractPLaif.slide(abs(conc), t, t0 - t(1));
             end
-            conc = conc * b^(a+1) / gamma(a+1);
+            conc = conc*b^(a+1)/gamma(a+1);
         end
         function conc = bolusSteadyStateTerm(e, g, t0, t)
             import mlperfusion.*;
