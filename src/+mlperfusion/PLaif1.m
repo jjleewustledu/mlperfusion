@@ -76,6 +76,9 @@ classdef PLaif1 < mlperfusion.AbstractPLaif
                  (PLaif1.bolusFlowTerm(a, b, t0, t) + e * PLaif1.bolusSteadyStateTerm(g, t0, t));
             kA = abs(kA);
         end
+        function mdl  = model(varargin)
+            mdl = mlperfusion.PLaif1.kConcentration(varargin{:});
+        end
         function this = simulateMcmc(F, PS, S0, a, b, e, g, t0, t, becq, map)
             import mlperfusion.*;            
             this = PLaif1(t, becq);

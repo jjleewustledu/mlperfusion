@@ -58,6 +58,9 @@ classdef BayesianDCV0 < mlperfusion.AbstractPLaif
             kA = BayesianDCV0.bolusFlowTerm(a, b, t0, t);
             kA = abs(kA);
         end
+        function mdl  = model(varargin)
+            mdl = mlperfusion.BayesianDCV0.kConcentration(varargin{:});
+        end
         function this = simulateMcmc(S0, a, b, t0, t, wellcnts0, map)
             import mlperfusion.*;            
             this = BayesianDCV0(t, wellcnts0);

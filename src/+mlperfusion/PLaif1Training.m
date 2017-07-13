@@ -93,6 +93,9 @@ classdef PLaif1Training < mlperfusion.AbstractPLaif
             kC     = m * F * (PLaif1Training.flowTerm(a, beta, delta, u0, t) + ...
                               PLaif1Training.steadyStateTerm(delta, e, g, ldecay, u0, t));
         end
+        function mdl  = model(varargin)
+            mdl = mlperfusion.PLaif1Training.kConcentration(varargin{:});
+        end
         function this = simulateMcmc(F, PS, S0, a, b, e, g, t0, u0, t, u, mapParams)
             import mlperfusion.*;     
             wellCnts = PLaif1Training.wellCounts(      S0, a, b, e, g, t0, t);
