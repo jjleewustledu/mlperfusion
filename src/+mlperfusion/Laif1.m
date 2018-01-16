@@ -98,8 +98,8 @@ classdef Laif1 < mlperfusion.AbstractLaif
  			%  Usage:  this = Laif1([times, magnetization]) 
  			
  			this = this@mlperfusion.AbstractLaif(varargin{:});  
-            this.expectedBestFitParams_ = ...
-                [this.F this.S0 this.a this.b this.d this.e this.g this.t0]';
+            this.keysArgs_ = ...
+                {this.F this.S0 this.a this.b this.d this.e this.g this.t0};
         end 
         function m    = itsMagnetization(this)
             m = mlperfusion.Laif1.magnetization(this.F, this.S0, this.a, this.b, this.d, this.e, this.g, this.times, this.t0);

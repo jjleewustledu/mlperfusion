@@ -12,9 +12,9 @@ classdef (Abstract) IAutoradiographyModel
 	properties (Abstract)
         baseTitle
         bestFitParams
+        expectedBestFitParams
         detailedTitle
  		ecat
-        expectedBestFitParams
         mapParams
         mask
         meanParams

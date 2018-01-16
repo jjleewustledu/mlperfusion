@@ -43,7 +43,7 @@ classdef PLaif0 < mlperfusion.AbstractPLaif
         function this = load(ecatFn, maskFn)
             import mlpet.* mlperfusion.* mlfourd.*;
             mask = MaskingNIfTId.load(maskFn);
-            ecat = EcatExactHRPlus.load(ecatFn);
+            ecat = mlsiemens.EcatExactHRPlus.load(ecatFn);
             ecat = ecat.masked(mask);
             ecat = ecat.volumeSummed;
             
@@ -95,8 +95,8 @@ classdef PLaif0 < mlperfusion.AbstractPLaif
  			%  Usage:  this = PLaif0([times, tscCounts]) 
  			
  			this = this@mlperfusion.AbstractPLaif(varargin{:});
-            this.expectedBestFitParams_ = ...
-                [this.F this.PS this.S0 this.a this.b this.t0]';
+            this.keysArgs_ = ...
+                {this.F this.PS this.S0 this.a this.b this.t0};
         end 
         
         function this = simulateItsMcmc(this)

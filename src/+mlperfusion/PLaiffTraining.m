@@ -60,7 +60,7 @@ classdef PLaiffTraining < mlperfusion.AbstractPLaif
         function this = load(ecatFn, maskFn, dcvFn)
             import mlpet.* mlperfusion.* mlfourd.*;
             mask = MaskingNIfTId.load(maskFn);
-            ecat = EcatExactHRPlus.load(ecatFn); % radioactive decay modeled by kConcentration
+            ecat = mlsiemens.EcatExactHRPlus.load(ecatFn); % radioactive decay modeled by kConcentration
             ecat = ecat.masked(mask);
             ecat = ecat.volumeSummed;            
             ecat.img = ecat.img / mask.count;
@@ -106,8 +106,8 @@ classdef PLaiffTraining < mlperfusion.AbstractPLaif
  			%  Usage:  this = PLaiffTraining([times, tscCounts]) 
  			
  			this = this@mlperfusion.AbstractPLaif(varargin{:});
-            this.expectedBestFitParams_ = ...
-                [this.F this.PS this.R0 this.S0 this.a this.b this.p this.t0 this.u0]';
+            this.keysArgs_ = ...
+                {this.F this.PS this.R0 this.S0 this.a this.b this.p this.t0 this.u0};
         end 
         
         function this = simulateItsMcmc(this)

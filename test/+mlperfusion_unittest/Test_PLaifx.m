@@ -519,7 +519,7 @@ classdef Test_PLaifx < matlab.unittest.TestCase
         function this = buildEcat(this)
             import mlfourd.*;
             mask        = MaskingNIfTId.load(this.maskFilename);
-            this.wbEcat = mlpet.EcatExactHRPlus.load(this.ecatFilename);
+            this.wbEcat = mlsiemens.EcatExactHRPlus.load(this.ecatFilename);
             this.wbEcat = this.wbEcat.masked(mask);
             this.wbEcat = this.wbEcat.volumeSummed;
             
