@@ -42,11 +42,11 @@ classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusio
             import mlperfusion.*;
             if (t(1) >= t0)
                 t_   = t - t0;
-                conc = e * (1 - exp(-g*t_)) .* AbstractPLaif.Heaviside(t_, t0);
+                conc = e * (1 - exp(-g*t_));
                 conc = abs(conc);
             else 
                 t_   = t - t(1);
-                conc = e * (1 - exp(-g*t_)) .* AbstractPLaif.Heaviside(t_, t0);
+                conc = e * (1 - exp(-g*t_));
                 conc = AbstractPLaif.slide(abs(conc), t, t0 - t(1));
             end
         end
