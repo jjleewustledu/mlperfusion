@@ -1,4 +1,4 @@
-classdef (Abstract) ILaif  
+classdef (Abstract) ILaif < handle 
 	%% ILAIF   
 
 	%  $Revision$ 

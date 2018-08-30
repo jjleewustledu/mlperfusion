@@ -1,4 +1,4 @@
-classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusion.ILaif
+classdef (Abstract) AbstractPLaif < handle & mlbayesian.AbstractMcmcStrategy & mlperfusion.ILaif
 	%% ABSTRACTPLAIF   
 
 	%  $Revision$ 
@@ -61,6 +61,9 @@ classdef (Abstract) AbstractPLaif < mlbayesian.AbstractMcmcStrategy & mlperfusio
             conc = pchip(t_, conc, t); 
         end
         function conc = flowTerm(a, b, d, t0, t)
+            %% FLOWTERM quickly evaluates convolutions expressible as:
+            %  \Gamma(\alpha+1, \beta) \ast \text{exp}(-\Delta (t - t_0)).
+           
             if (t(1) >= t0)
                 t_   = t - t0;
                 conc = exp(-d*t_) * b^(a+1) / (b-d)^(a+1);
