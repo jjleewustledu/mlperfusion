@@ -41,7 +41,6 @@ classdef (Abstract) AbstractMRCurve < mlperfusion.IMRCurve
         header    
         
         taus
-        timeMidpoints
     end
 
     methods %% GET, SET 
@@ -143,12 +142,6 @@ classdef (Abstract) AbstractMRCurve < mlperfusion.IMRCurve
         function t = get.taus(this)
             assert(~isempty(this.taus_));
             t = this.taus_;
-        end
-        function tmp = get.timeMidpoints(this)
-            tmp = this.times;
-            for t = 2:this.length
-                tmp(t) = (this.times_(t-1) + this.times_(t))/2;
-            end
         end
     end
     
