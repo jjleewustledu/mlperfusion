@@ -25,7 +25,7 @@ classdef HO15Data < mlperfusion.IAutoradiographyData
  			%  Usage:  this = HO15Data()
 
  			ip = inputParser;
-            addRequired(ip, 'studyReg', @(x) isa(x, 'mlpipeline.IStudyRegistry'));
+            addRequired(ip, 'studyReg', @(x) isa(x, 'mlpipeline.StudyRegistry'));
             parse(ip, varargin{:});
             
             this.studyRegistry = ip.Results.studyReg;
